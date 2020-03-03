@@ -3,12 +3,15 @@ package org.autojs.autojs.ui.widget;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.autojs.autojs.R;
 
@@ -45,6 +48,11 @@ public class BubblePopupMenu extends PopupWindow {
         mOnItemClickListener = onItemClickListener;
     }
 
+    public void rotate() {
+        getContentView().setRotation(180);
+        mRecyclerView.setRotation(180);
+    }
+
     public void showAsDropDownAtLocation(View parent, int contentHeight, int x, int y) {
         int screenWidth = getContentView().getResources().getDisplayMetrics().widthPixels;
         int screenHeight = getContentView().getResources().getDisplayMetrics().heightPixels;
@@ -59,10 +67,9 @@ public class BubblePopupMenu extends PopupWindow {
             params.leftMargin = 0;
         }
         if (y > screenHeight / 2) {
-            getContentView().setRotation(180);
-            mRecyclerView.setRotation(180);
             params.leftMargin = -params.leftMargin;
-            y -= contentHeight + height;
+            rotate();
+            y -= contentHeight + getContentView().getMeasuredHeight();
         } else {
             getContentView().setRotation(0);
             mRecyclerView.setRotation(0);
@@ -70,7 +77,6 @@ public class BubblePopupMenu extends PopupWindow {
         mLittleTriangle.setLayoutParams(params);
         super.showAtLocation(parent, Gravity.NO_GRAVITY, x, y);
     }
-
 
     public void preMeasure() {
         getContentView().measure(getWidth(), getHeight());
