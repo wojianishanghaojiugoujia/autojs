@@ -101,7 +101,9 @@ repositories {
     flatDir {
         dirs 'libs'
     }
-    google()
+    maven {
+        url "https://maven.aliyun.com/repository/google"
+    }
 }
 
 dependencies {

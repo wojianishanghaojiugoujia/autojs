@@ -36,7 +36,9 @@ repositories {
     flatDir {
         dirs 'libs'
     }
-    google()
+    maven {
+        url "https://maven.aliyun.com/repository/google"
+    }
 }
 
 dependencies {
@@ -70,7 +72,7 @@ dependencies {
     api(name: 'libtermexec-release', ext: 'aar')
     api(name: 'emulatorview-release', ext: 'aar')
     api(name: 'term-debug', ext: 'aar')
-    api files('libs/rhino-1.7.7.2.jar')
+    api files('libs/rhino-1.7.12.jar')
     api project(path: ':common')
     api project(path: ':automator')
 }
