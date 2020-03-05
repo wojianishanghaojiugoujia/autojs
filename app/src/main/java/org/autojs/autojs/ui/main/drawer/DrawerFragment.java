@@ -163,7 +163,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                 .subscribe(state -> {
                     if (state.getState() == DevPluginService.State.DISCONNECTED) { // 如果是断开连接，那么就判断是否需要重新连接
                         if (reconnect) {
-                            if (trytimes <= trymaxtimes) {
+                            if (trytimes <= trymaxtimes || trymaxtimes == 0) {
                                 if (tryReconnectDisposable != null && !tryReconnectDisposable.isDisposed()) {
                                     tryReconnectDisposable.dispose();
                                 }
@@ -332,14 +332,23 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     void reconnectChanged(DrawerMenuItemViewHolder holder) {
         if (mReConnectionItem.isChecked()) {
             new MaterialDialog.Builder(getActivity())
-                    .title("最大尝试次数")
+                    .title("最大尝试次数（输入0为不限制次数）")
                     .inputType(InputType.TYPE_CLASS_NUMBER)
                     .input("", String.valueOf(trymaxtimes), ((d1, i1) -> {
+                        if (Integer.parseInt(i1.toString()) < 0) {
+                            Toast.makeText(GlobalAppContext.get(), "最大尝试次数不能为负数", Toast.LENGTH_LONG).show();
+                            return;
+                        }
 
                         new MaterialDialog.Builder(getActivity())
                                 .title("尝试间隔(秒)")
                                 .inputType(InputType.TYPE_CLASS_NUMBER)
                                 .input("", String.valueOf(tryinterval), ((d2, i2) -> {
+                                    if (Integer.parseInt(i2.toString()) <= 0) {
+                                        Toast.makeText(GlobalAppContext.get(), "执行时间间隔必须为正整数", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+
                                     trymaxtimes = Integer.parseInt(i1.toString());
                                     tryinterval = Integer.parseInt(i2.toString());
                                     Pref.saveReconnectMaxTimes(trymaxtimes);
