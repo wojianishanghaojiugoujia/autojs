@@ -11,6 +11,7 @@ import com.stardust.autojs.execution.ExecutionConfig
 import com.stardust.autojs.execution.ScriptExecution
 import com.stardust.autojs.execution.ScriptExecutionListener
 import com.stardust.autojs.execution.SimpleScriptExecutionListener
+import com.stardust.autojs.project.ScriptConfig
 import com.stardust.autojs.runtime.exception.ScriptInterruptedException
 import com.stardust.autojs.script.ScriptSource
 import com.stardust.util.IntentUtil
@@ -111,16 +112,24 @@ object Scripts {
 
     }
 
-
-    fun run(source: ScriptSource): ScriptExecution? {
+    fun run(source: ScriptSource, config: ScriptConfig): ScriptExecution? {
         return try {
-            AutoJs.getInstance().scriptEngineService.execute(source, ExecutionConfig(workingDirectory = Pref.getScriptDirPath()))
+            AutoJs.getInstance().scriptEngineService.execute(
+                    source,
+                    ExecutionConfig(
+                            workingDirectory = Pref.getScriptDirPath(),
+                            scriptConfig = config
+                    )
+            )
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(GlobalAppContext.get(), e.message, Toast.LENGTH_LONG).show()
             null
         }
+    }
 
+    fun run(source: ScriptSource): ScriptExecution? {
+        return run(source, ScriptConfig())
     }
 
     fun runWithBroadcastSender(file: File): ScriptExecution {

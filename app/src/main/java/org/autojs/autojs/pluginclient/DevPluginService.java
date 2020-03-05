@@ -4,22 +4,28 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
+
 import android.util.Log;
 import android.util.Pair;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.stardust.app.GlobalAppContext;
+import com.stardust.autojs.runtime.api.Device;
 import com.stardust.util.MapBuilder;
 
 import org.autojs.autojs.BuildConfig;
 
 import java.io.File;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +75,6 @@ public class DevPluginService {
         }
     }
 
-    private static final int PORT = 9317;
     private static DevPluginService sInstance = new DevPluginService();
     private final PublishSubject<State> mConnectionState = PublishSubject.create();
     private final DevPluginResponseHandler mResponseHandler;
@@ -77,6 +82,7 @@ public class DevPluginService {
     private final HashMap<String, JsonObject> mRequiredBytesCommands = new HashMap<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private volatile JsonWebSocket mSocket;
+    public Device device;
 
     public static DevPluginService getInstance() {
         return sInstance;
@@ -85,6 +91,7 @@ public class DevPluginService {
     public DevPluginService() {
         File cache = new File(GlobalAppContext.get().getCacheDir(), "remote_project");
         mResponseHandler = new DevPluginResponseHandler(cache);
+        device = new Device(GlobalAppContext.get());
     }
 
     @AnyThread
@@ -115,8 +122,7 @@ public class DevPluginService {
     }
 
     @AnyThread
-    public Observable<JsonWebSocket> connectToServer(String host) {
-        int port = PORT;
+    public Observable<JsonWebSocket> connectToServer(String host, int port) {
         String ip = host;
         int i = host.lastIndexOf(':');
         if (i > 0 && i < host.length() - 1) {
@@ -139,9 +145,12 @@ public class DevPluginService {
         if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
             url = "ws://" + url;
         }
-        return Observable.just(new JsonWebSocket(client, new Request.Builder()
-                .url(url)
-                .build()))
+        return Observable.just(
+                new JsonWebSocket(
+                        client,
+                        new Request.Builder().url(url).build()
+                )
+        )
                 .doOnNext(socket -> {
                     mSocket = socket;
                     subscribeMessage(socket);
@@ -225,9 +234,48 @@ public class DevPluginService {
         }
     }
 
+    @SuppressLint({"HardwareIds", "NewApi"})
     @WorkerThread
     private void sayHelloToServer(JsonWebSocket socket) {
+        ArrayList<String> imeIs = device.getIMEIs();
+        JsonArray imeisJ = new JsonArray();
+        imeIs.forEach(imeisJ::add);
+
+        String mac = "";
+        try {
+            mac = device.getMacAddress();
+        } catch (Exception e) {
+        }
+
         writeMap(socket, TYPE_HELLO, new MapBuilder<String, Object>()
+                .put("CPU_ABI", Build.CPU_ABI)
+                .put("CPU_ABI2", Build.CPU_ABI2)
+                .put("manufacturer", Build.MANUFACTURER)
+                .put("host", Build.HOST)
+
+                .put("buildDisplay", Device.buildDisplay)
+                .put("product", Device.product)
+                .put("device", Device.device)
+                .put("board", Device.board)
+                .put("brand", Device.brand)
+                .put("model", Device.model)
+                .put("bootloader", Device.bootloader)
+                .put("hardware", Device.hardware)
+                .put("incremental", Device.incremental)
+                .put("release", Device.release)
+                .put("buildId", Device.buildId)
+                .put("width", Device.width)
+                .put("height", Device.height)
+                .put("baseOS", Device.baseOS)
+                .put("securityPatch", Device.securityPatch)
+                .put("fingerprint", Device.fingerprint)
+                .put("sdkInt", Device.sdkInt)
+                .put("codename", Device.codename)
+                .put("serial", device.getSerial())
+                .put("IMEIs", imeisJ)
+                .put("IMEI", device.getIMEI())
+                .put("mac", mac)
+                .put("androidId", device.getAndroidId())
                 .put("device_name", Build.BRAND + " " + Build.MODEL)
                 .put("client_version", CLIENT_VERSION)
                 .put("app_version", BuildConfig.VERSION_NAME)

@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -74,9 +75,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -105,8 +109,8 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     @ViewById(R.id.drawer_menu)
     RecyclerView mDrawerMenu;
 
-
     private DrawerMenuItem mConnectionItem = new DrawerMenuItem(R.drawable.ic_connect_to_pc, R.string.debug, 0, this::connectOrDisconnectToRemote);
+    private DrawerMenuItem mReConnectionItem = new DrawerMenuItem(R.drawable.ic_sync, R.string.reconnect, 0, this::reconnectChanged);
     private DrawerMenuItem mAccessibilityServiceItem = new DrawerMenuItem(R.drawable.ic_service_green, R.string.text_accessibility_service, 0, this::enableOrDisableAccessibilityService);
     private DrawerMenuItem mStableModeItem = new DrawerMenuItem(R.drawable.ic_stable, R.string.text_stable_mode, R.string.key_stable_mode, null) {
         @Override
@@ -126,12 +130,23 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
 
     private DrawerMenuAdapter mDrawerMenuAdapter;
     private Disposable mConnectionStateDisposable;
+    private Disposable mReConnectionStateDisposable;
+    private Disposable tryReconnectDisposable;
     private CommunityDrawerMenu mCommunityDrawerMenu = new CommunityDrawerMenu();
-
+    private int trytimes = 0;
+    private int tryinterval = 10;
+    private int trymaxtimes = 5;
+    private boolean reconnect = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        reconnect = mReConnectionItem.isChecked();
+
+        tryinterval = Pref.getReconnectInterval(10);
+        trymaxtimes = Pref.getReconnectMaxTimes(5);
+
         mConnectionStateDisposable = DevPluginService.getInstance().connectionState()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(state -> {
@@ -141,6 +156,30 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                     }
                     if (state.getException() != null) {
                         showMessage(state.getException().getMessage());
+                    }
+                });
+        mReConnectionStateDisposable = DevPluginService.getInstance().connectionState()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(state -> {
+                    if (state.getState() == DevPluginService.State.DISCONNECTED) { // 如果是断开连接，那么就判断是否需要重新连接
+                        if (reconnect) {
+                            if (trytimes <= trymaxtimes) {
+                                if (tryReconnectDisposable != null && !tryReconnectDisposable.isDisposed()) {
+                                    tryReconnectDisposable.dispose();
+                                }
+                                tryReconnectDisposable = Flowable.timer(tryinterval, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+                                        .subscribe(aLong -> {
+                                            trytimes++;
+                                            Toast.makeText(GlobalAppContext.get(), "尝试重新连接(" + trytimes + ")", Toast.LENGTH_SHORT).show();
+                                            connectToServer();
+                                        });
+                            } else {
+                                setChecked(mReConnectionItem, false);
+                                Toast.makeText(GlobalAppContext.get(), "超过尝试重连次数", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    } else if (state.getState() == DevPluginService.State.CONNECTED) {
+                        trytimes = 0;
                     }
                 });
         EventBus.getDefault().register(this);
@@ -156,6 +195,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
             setChecked(mFloatingWindowItem, true);
         }
         setChecked(mConnectionItem, DevPluginService.getInstance().isConnected());
+        setChecked(mReConnectionItem, reconnect); // 默认都是不自动连接
         if (Pref.isForegroundServiceEnabled()) {
             ForegroundService.start(GlobalAppContext.get());
             setChecked(mForegroundServiceItem, true);
@@ -177,6 +217,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
 
                 new DrawerMenuGroup(R.string.text_others),
                 mConnectionItem,
+                mReConnectionItem,
                 new DrawerMenuItem(R.drawable.ic_personalize, R.string.text_theme_color, this::openThemeColorSettings),
                 new DrawerMenuItem(R.drawable.ic_night_mode, R.string.text_night_mode, R.string.key_night_mode, this::toggleNightMode),
                 mCheckForUpdatesItem
@@ -239,13 +280,13 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         }
         boolean enabled = AppOpsKt.isOpPermissionGranted(getContext(), AppOpsManager.OPSTR_GET_USAGE_STATS);
         boolean checked = holder.getSwitchCompat().isChecked();
-        if(checked && !enabled){
-            if(new NotAskAgainDialog.Builder(getContext(), "DrawerFragment.usage_stats")
+        if (checked && !enabled) {
+            if (new NotAskAgainDialog.Builder(getContext(), "DrawerFragment.usage_stats")
                     .title(R.string.text_usage_stats_permission)
                     .content(R.string.description_usage_stats_permission)
                     .positiveText(R.string.ok)
                     .dismissListener(dialog -> IntentUtil.requestAppUsagePermission(getContext()))
-                    .show() == null){
+                    .show() == null) {
                 IntentUtil.requestAppUsagePermission(getContext());
             }
         }
@@ -288,6 +329,41 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
 
     }
 
+    void reconnectChanged(DrawerMenuItemViewHolder holder) {
+        if (mReConnectionItem.isChecked()) {
+            new MaterialDialog.Builder(getActivity())
+                    .title("最大尝试次数")
+                    .inputType(InputType.TYPE_CLASS_NUMBER)
+                    .input("", String.valueOf(trymaxtimes), ((d1, i1) -> {
+
+                        new MaterialDialog.Builder(getActivity())
+                                .title("尝试间隔(秒)")
+                                .inputType(InputType.TYPE_CLASS_NUMBER)
+                                .input("", String.valueOf(tryinterval), ((d2, i2) -> {
+                                    trymaxtimes = Integer.parseInt(i1.toString());
+                                    tryinterval = Integer.parseInt(i2.toString());
+                                    Pref.saveReconnectMaxTimes(trymaxtimes);
+                                    Pref.saveReconnectInterval(tryinterval);
+
+                                    reconnect = true;
+                                    Pref.saveAutoReconnect(true);
+                                }))
+                                .cancelable(true)
+                                .cancelListener(dialog1 -> setChecked(mReConnectionItem, false))
+                                .show();
+                    }))
+                    .cancelable(true)
+                    .cancelListener(dialog1 -> setChecked(mReConnectionItem, false))
+                    .show();
+        } else {
+            reconnect = false;
+            Pref.saveAutoReconnect(false);
+            if (tryReconnectDisposable != null && !tryReconnectDisposable.isDisposed()) {
+                tryReconnectDisposable.dispose();
+            }
+        }
+    }
+
     void connectOrDisconnectToRemote(DrawerMenuItemViewHolder holder) {
         boolean checked = holder.getSwitchCompat().isChecked();
         boolean connected = DevPluginService.getInstance().isConnected();
@@ -309,22 +385,51 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     }
 
 
+    @SuppressLint("CheckResult")
     private void inputRemoteHost() {
         String host = Pref.getServerAddressOrDefault(WifiTool.getRouterIp(getActivity()));
+        int port = Pref.getServerPortOrDefault(9317);
+
         new MaterialDialog.Builder(getActivity())
                 .title(R.string.text_server_address)
                 .input("", host, (dialog, input) -> {
-                    Pref.saveServerAddress(input.toString());
-                    DevPluginService.getInstance().connectToServer(input.toString())
-                            .subscribe(Observers.emptyConsumer(), this::onConnectException);
+                    String ip = input.toString();
+
+                    new MaterialDialog.Builder(getActivity())
+                            .title("服务器端口")
+                            .inputType(InputType.TYPE_CLASS_NUMBER)
+                            .input("", String.valueOf(port), ((dialog1, input1) -> {
+                                Pref.saveServerAddress(input.toString());
+                                int p = Integer.parseInt(input1.toString());
+                                Pref.saveServerPort(p);
+                                if (reconnect) {
+                                    trytimes = 0;
+                                }
+                                connectToServer(ip, p);
+                            }))
+                            .cancelable(true)
+                            .cancelListener(dialog1 -> setChecked(mConnectionItem, false))
+                            .show();
                 })
-                .neutralText(R.string.text_help)
-                .onNeutral((dialog, which) -> {
-                    setChecked(mConnectionItem, false);
-                    IntentUtil.browse(getActivity(), URL_DEV_PLUGIN);
-                })
+                .cancelable(true)
                 .cancelListener(dialog -> setChecked(mConnectionItem, false))
                 .show();
+    }
+
+    private Disposable connectToServer() {
+        String host = Pref.getServerAddressOrDefault(WifiTool.getRouterIp(getActivity()));
+        int port = Pref.getServerPortOrDefault(9317);
+        return connectToServer(host, port);
+    }
+
+    private Disposable connectToServer(String ip, int port) {
+        if (tryReconnectDisposable != null && !tryReconnectDisposable.isDisposed()) {
+            tryReconnectDisposable.dispose();
+        }
+        return DevPluginService
+                .getInstance()
+                .connectToServer(ip, port)
+                .subscribe(Observers.emptyConsumer(), this::onConnectException);
     }
 
     private void onConnectException(Throwable e) {
@@ -490,6 +595,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     public void onDestroy() {
         super.onDestroy();
         mConnectionStateDisposable.dispose();
+        mReConnectionStateDisposable.dispose();
         EventBus.getDefault().unregister(this);
     }
 

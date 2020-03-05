@@ -22,6 +22,10 @@ public class Pref {
 
     private static final SharedPreferences DISPOSABLE_BOOLEAN = GlobalAppContext.get().getSharedPreferences("DISPOSABLE_BOOLEAN", Context.MODE_PRIVATE);
     private static final String KEY_SERVER_ADDRESS = "KEY_SERVER_ADDRESS";
+    private static final String KEY_SERVER_PORT = "KEY_SERVER_PORT";
+    private static final String KEY_AUTO_RECONNECT = "KEY_AUTO_RECONNECT";
+    private static final String KEY_RECONNECT_MAX_TIMES = "KEY_RECONNECT_MAX_TIMES";
+    private static final String KEY_RECONNECT_INTERVAL = "KEY_RECONNECT_INTERVAL";
     private static final String KEY_SHOULD_SHOW_ANNUNCIATION = "KEY_SHOULD_SHOW_ANNUNCIATION";
     private static final String KEY_FLOATING_MENU_SHOWN = "KEY_FLOATING_MENU_SHOWN";
     private static final String KEY_EDITOR_THEME = "editor.theme";
@@ -97,6 +101,38 @@ public class Pref {
 
     public static void saveServerAddress(String address) {
         def().edit().putString(KEY_SERVER_ADDRESS, address).apply();
+    }
+
+    public static int getServerPortOrDefault(int defaultPort) {
+        return def().getInt(KEY_SERVER_PORT, defaultPort);
+    }
+
+    public static void saveServerPort(int port) {
+        def().edit().putInt(KEY_SERVER_PORT, port).apply();
+    }
+
+    public static boolean getAutoReconnect(boolean def) {
+        return def().getBoolean(KEY_AUTO_RECONNECT, def);
+    }
+
+    public static void saveAutoReconnect(boolean b) {
+        def().edit().putBoolean(KEY_AUTO_RECONNECT, b).apply();
+    }
+
+    public static int getReconnectMaxTimes(int def) {
+        return def().getInt(KEY_RECONNECT_MAX_TIMES, def);
+    }
+
+    public static void saveReconnectMaxTimes(int v) {
+        def().edit().putInt(KEY_RECONNECT_MAX_TIMES, v).apply();
+    }
+
+    public static int getReconnectInterval(int def) {
+        return def().getInt(KEY_RECONNECT_INTERVAL, def);
+    }
+
+    public static void saveReconnectInterval(int v) {
+        def().edit().putInt(KEY_RECONNECT_INTERVAL, v).apply();
     }
 
     public static boolean shouldShowAnnunciation() {

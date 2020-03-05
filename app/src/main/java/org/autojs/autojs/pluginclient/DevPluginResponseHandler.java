@@ -1,15 +1,18 @@
 package org.autojs.autojs.pluginclient;
 
 import android.annotation.SuppressLint;
+import android.renderscript.ScriptC;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.stardust.app.GlobalAppContext;
 import com.stardust.autojs.execution.ScriptExecution;
 import com.stardust.autojs.project.ProjectLauncher;
+import com.stardust.autojs.project.ScriptConfig;
 import com.stardust.autojs.script.StringScriptSource;
 import com.stardust.io.Zip;
 import com.stardust.pio.PFiles;
@@ -36,15 +39,14 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class DevPluginResponseHandler implements Handler {
-
-
     private Router mRouter = new Router.RootRouter("type")
             .handler("command", new Router("command")
                     .handler("run", data -> {
                         String script = data.get("script").getAsString();
                         String name = getName(data);
                         String id = data.get("id").getAsString();
-                        runScript(id, name, script);
+                        ScriptConfig scriptConfig = getScriptConfig(data);
+                        runScript(id, name, script, scriptConfig);
                         return true;
                     })
                     .handler("stop", data -> {
@@ -62,8 +64,9 @@ public class DevPluginResponseHandler implements Handler {
                         String id = data.get("id").getAsString();
                         String script = data.get("script").getAsString();
                         String name = getName(data);
+                        ScriptConfig scriptConfig = getScriptConfig(data);
                         stopScript(id);
-                        runScript(id, name, script);
+                        runScript(id, name, script, scriptConfig);
                         return true;
                     })
                     .handler("stopAll", data -> {
@@ -112,13 +115,13 @@ public class DevPluginResponseHandler implements Handler {
                 .subscribeOn(Schedulers.io());
     }
 
-    private void runScript(String viewId, String name, String script) {
+    private void runScript(String viewId, String name, String script, ScriptConfig config) {
         if (TextUtils.isEmpty(name)) {
             name = "[" + viewId + "]";
         } else {
             name = PFiles.getNameWithoutExtension(name);
         }
-        mScriptExecutions.put(viewId, Scripts.INSTANCE.run(new StringScriptSource("[remote]" + name, script)));
+        mScriptExecutions.put(viewId, Scripts.INSTANCE.run(new StringScriptSource("[remote]" + name, script), config));
     }
 
 
@@ -132,13 +135,23 @@ public class DevPluginResponseHandler implements Handler {
         }
     }
 
-
     private void stopScript(String viewId) {
         ScriptExecution execution = mScriptExecutions.get(viewId);
         if (execution != null) {
             execution.getEngine().forceStop();
             mScriptExecutions.remove(viewId);
         }
+    }
+
+    private ScriptConfig getScriptConfig(JsonObject data) {
+        ScriptConfig config;
+        JsonElement element = data.get("scriptConfig");
+        if (!element.isJsonObject()) {
+            config = new ScriptConfig();
+        } else {
+            config = new Gson().fromJson(element.getAsJsonObject(), ScriptConfig.class);
+        }
+        return config;
     }
 
     private String getName(JsonObject data) {
@@ -180,7 +193,7 @@ public class DevPluginResponseHandler implements Handler {
                                 GlobalAppContext.toast(R.string.text_project_save_success, dest),
                         err ->
                                 GlobalAppContext.toast(R.string.text_project_save_error, err.getMessage())
-                        );
+                );
 
     }
 
