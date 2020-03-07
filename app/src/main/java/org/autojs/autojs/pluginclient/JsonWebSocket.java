@@ -22,25 +22,11 @@ import okhttp3.WebSocketListener;
 import okio.ByteString;
 
 public class JsonWebSocket extends WebSocketListener {
-
-    public static class Bytes {
-        public final String md5;
-        public final ByteString byteString;
-        public final long timestamp;
-
-        public Bytes(String md5, ByteString byteString) {
-            this.md5 = md5;
-            this.byteString = byteString;
-            this.timestamp = System.currentTimeMillis();
-        }
-    }
-
     private static final String LOG_TAG = "JsonWebSocket";
 
     private final WebSocket mWebSocket;
     private final JsonParser mJsonParser = new JsonParser();
     private final PublishSubject<JsonElement> mJsonElementPublishSubject = PublishSubject.create();
-    private final PublishSubject<Bytes> mBytesPublishSubject = PublishSubject.create();
     private volatile boolean mClosed = false;
 
     public JsonWebSocket(OkHttpClient client, Request request) {
@@ -53,18 +39,8 @@ public class JsonWebSocket extends WebSocketListener {
         dispatchJson(text);
     }
 
-    @Override
-    public void onMessage(WebSocket webSocket, ByteString bytes) {
-        Log.d(LOG_TAG, "onMessage: ByteString = " + bytes.toString());
-        mBytesPublishSubject.onNext(new Bytes(bytes.md5().hex(), bytes));
-    }
-
     public Observable<JsonElement> data() {
         return mJsonElementPublishSubject;
-    }
-
-    public Observable<Bytes> bytes(){
-        return mBytesPublishSubject;
     }
 
     public boolean write(JsonElement element) {
@@ -115,7 +91,6 @@ public class JsonWebSocket extends WebSocketListener {
         } catch (JsonParseException e) {
             e.printStackTrace();
         }
-
     }
 
     public boolean isClosed() {

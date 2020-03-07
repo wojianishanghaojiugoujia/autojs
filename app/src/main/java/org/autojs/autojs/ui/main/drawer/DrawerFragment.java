@@ -32,6 +32,7 @@ import com.stardust.notification.NotificationListenerService;
 
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
+import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.external.foreground.ForegroundService;
 import org.autojs.autojs.network.UserService;
 import org.autojs.autojs.tool.Observers;
@@ -175,7 +176,8 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                                         });
                             } else {
                                 setChecked(mReConnectionItem, false);
-                                Toast.makeText(GlobalAppContext.get(), "超过尝试重连次数", Toast.LENGTH_LONG).show();
+                                int n = AutoJs.getInstance().getScriptEngineService().stopAll();
+                                Toast.makeText(GlobalAppContext.get(), "超过尝试重连次数，关闭所有正在执行的脚本" + n, Toast.LENGTH_LONG).show();
                             }
                         }
                     } else if (state.getState() == DevPluginService.State.CONNECTED) {

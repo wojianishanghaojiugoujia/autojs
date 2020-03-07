@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.subjects.PublishSubject;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -45,7 +46,6 @@ public class DevPluginService {
     private static final int CLIENT_VERSION = 2;
     private static final String LOG_TAG = "DevPluginService";
     private static final String TYPE_HELLO = "hello";
-    private static final String TYPE_BYTES_COMMAND = "bytes_command";
     private static final long HANDSHAKE_TIMEOUT = 10 * 1000;
 
     public static class State {
@@ -78,11 +78,10 @@ public class DevPluginService {
     private static DevPluginService sInstance = new DevPluginService();
     private final PublishSubject<State> mConnectionState = PublishSubject.create();
     private final DevPluginResponseHandler mResponseHandler;
-    private final HashMap<String, JsonWebSocket.Bytes> mBytes = new HashMap<>();
-    private final HashMap<String, JsonObject> mRequiredBytesCommands = new HashMap<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private volatile JsonWebSocket mSocket;
     public Device device;
+    private String deviceId;
 
     public static DevPluginService getInstance() {
         return sInstance;
@@ -92,6 +91,7 @@ public class DevPluginService {
         File cache = new File(GlobalAppContext.get().getCacheDir(), "remote_project");
         mResponseHandler = new DevPluginResponseHandler(cache);
         device = new Device(GlobalAppContext.get());
+        deviceId = device.getIMEI();
     }
 
     @AnyThread
@@ -141,10 +141,18 @@ public class DevPluginService {
         OkHttpClient client = new OkHttpClient.Builder()
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build();
-        String url = ip + ":" + port;
-        if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
-            url = "ws://" + url;
+        boolean ssl;
+        ssl = ip.startsWith("wss://");
+        if (ip.startsWith("ws://") || ip.startsWith("wss://")) {
+            ip = ip.substring(ip.startsWith("ws://") ? 5 : 6);
         }
+        String url = new HttpUrl.Builder()
+                .scheme("http")
+                .port(port)
+                .host(ip)
+                .addQueryParameter("device_id", deviceId)
+                .toString().substring(4);
+        url = (ssl ? "wss" : "ws") + url;
         return Observable.just(
                 new JsonWebSocket(
                         client,
@@ -162,9 +170,6 @@ public class DevPluginService {
     private void subscribeMessage(JsonWebSocket socket) {
         socket.data()
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(() -> mConnectionState.onNext(new State(State.DISCONNECTED)))
-                .subscribe(data -> onSocketData(socket, data), this::onSocketError);
-        socket.bytes()
                 .doOnComplete(() -> mConnectionState.onNext(new State(State.DISCONNECTED)))
                 .subscribe(data -> onSocketData(socket, data), this::onSocketError);
     }
@@ -196,42 +201,11 @@ public class DevPluginService {
                 onServerHello(jsonWebSocket, obj);
                 return;
             }
-            if (TYPE_BYTES_COMMAND.equals(type)) {
-                String md5 = obj.get("md5").getAsString();
-                JsonWebSocket.Bytes bytes = mBytes.remove(md5);
-                if (bytes != null) {
-                    handleBytes(obj, bytes);
-                } else {
-                    mRequiredBytesCommands.put(md5, obj);
-                }
-                return;
-            }
             mResponseHandler.handle(obj);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-    }
-
-    @SuppressLint("CheckResult")
-    private void handleBytes(JsonObject obj, JsonWebSocket.Bytes bytes) {
-        mResponseHandler.handleBytes(obj, bytes)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(dir -> {
-                    obj.get("data").getAsJsonObject().add("dir", new JsonPrimitive(dir.getPath()));
-                    mResponseHandler.handle(obj);
-                });
-
-    }
-
-    @WorkerThread
-    private void onSocketData(JsonWebSocket jsonWebSocket, JsonWebSocket.Bytes bytes) {
-        JsonObject command = mRequiredBytesCommands.remove(bytes.md5);
-        if (command != null) {
-            handleBytes(command, bytes);
-        } else {
-            mBytes.put(bytes.md5, bytes);
-        }
     }
 
     @SuppressLint({"HardwareIds", "NewApi"})
@@ -253,7 +227,7 @@ public class DevPluginService {
                 .put("manufacturer", Build.MANUFACTURER)
                 .put("host", Build.HOST)
 
-                .put("buildDisplay", Device.buildDisplay)
+                .put("build_display", Device.buildDisplay)
                 .put("product", Device.product)
                 .put("device", Device.device)
                 .put("board", Device.board)
@@ -263,20 +237,21 @@ public class DevPluginService {
                 .put("hardware", Device.hardware)
                 .put("incremental", Device.incremental)
                 .put("release", Device.release)
-                .put("buildId", Device.buildId)
+                .put("build_id", Device.buildId)
                 .put("width", Device.width)
                 .put("height", Device.height)
-                .put("baseOS", Device.baseOS)
-                .put("securityPatch", Device.securityPatch)
+                .put("base_OS", Device.baseOS)
+                .put("security_patch", Device.securityPatch)
                 .put("fingerprint", Device.fingerprint)
-                .put("sdkInt", Device.sdkInt)
+                .put("sdk_int", Device.sdkInt)
                 .put("codename", Device.codename)
                 .put("serial", device.getSerial())
                 .put("IMEIs", imeisJ)
                 .put("IMEI", device.getIMEI())
                 .put("mac", mac)
-                .put("androidId", device.getAndroidId())
+                .put("android_id", device.getAndroidId())
                 .put("device_name", Build.BRAND + " " + Build.MODEL)
+                .put("device_id", deviceId)
                 .put("client_version", CLIENT_VERSION)
                 .put("app_version", BuildConfig.VERSION_NAME)
                 .put("app_version_code", BuildConfig.VERSION_CODE)

@@ -37,7 +37,6 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by Stardust on 2017/5/11.
  */
-
 public class DevPluginResponseHandler implements Handler {
     private Router mRouter = new Router.RootRouter("type")
             .handler("command", new Router("command")
@@ -73,15 +72,7 @@ public class DevPluginResponseHandler implements Handler {
                         AutoJs.getInstance().getScriptEngineService().stopAllAndToast();
                         return true;
                     }))
-            .handler("bytes_command", new Router("command")
-                    .handler("run_project", data -> {
-                        launchProject(data.get("dir").getAsString());
-                        return true;
-                    })
-                    .handler("save_project", data -> {
-                        saveProject(data.get("name").getAsString(), data.get("dir").getAsString());
-                        return true;
-                    }));
+            ;
 
 
     private HashMap<String, ScriptExecution> mScriptExecutions = new HashMap<>();
@@ -104,17 +95,6 @@ public class DevPluginResponseHandler implements Handler {
         return mRouter.handle(data);
     }
 
-    public Observable<File> handleBytes(JsonObject data, JsonWebSocket.Bytes bytes) {
-        String id = data.get("data").getAsJsonObject().get("id").getAsString();
-        String idMd5 = MD5.md5(id);
-        return Observable.fromCallable(() -> {
-            File dir = new File(mCacheDir, idMd5);
-            Zip.unzip(new ByteArrayInputStream(bytes.byteString.toByteArray()), dir);
-            return dir;
-        })
-                .subscribeOn(Schedulers.io());
-    }
-
     private void runScript(String viewId, String name, String script, ScriptConfig config) {
         if (TextUtils.isEmpty(name)) {
             name = "[" + viewId + "]";
@@ -122,17 +102,6 @@ public class DevPluginResponseHandler implements Handler {
             name = PFiles.getNameWithoutExtension(name);
         }
         mScriptExecutions.put(viewId, Scripts.INSTANCE.run(new StringScriptSource("[remote]" + name, script), config));
-    }
-
-
-    private void launchProject(String dir) {
-        try {
-            new ProjectLauncher(dir)
-                    .launch(AutoJs.getInstance().getScriptEngineService());
-        } catch (Exception e) {
-            e.printStackTrace();
-            GlobalAppContext.toast(R.string.text_invalid_project);
-        }
     }
 
     private void stopScript(String viewId) {
@@ -176,41 +145,41 @@ public class DevPluginResponseHandler implements Handler {
         GlobalAppContext.toast(R.string.text_script_save_successfully);
     }
 
+//
+//    @SuppressLint("CheckResult")
+//    private void saveProject(String name, String dir) {
+//        if (TextUtils.isEmpty(name)) {
+//            name = "untitled";
+//        }
+//        name = PFiles.getNameWithoutExtension(name);
+//        File toDir = new File(Pref.getScriptDirPath(), name);
+//        Observable.fromCallable(() -> {
+//            copyDir(new File(dir), toDir);
+//            return toDir.getPath();
+//        }).subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(dest ->
+//                                GlobalAppContext.toast(R.string.text_project_save_success, dest),
+//                        err ->
+//                                GlobalAppContext.toast(R.string.text_project_save_error, err.getMessage())
+//                );
+//
+//    }
 
-    @SuppressLint("CheckResult")
-    private void saveProject(String name, String dir) {
-        if (TextUtils.isEmpty(name)) {
-            name = "untitled";
-        }
-        name = PFiles.getNameWithoutExtension(name);
-        File toDir = new File(Pref.getScriptDirPath(), name);
-        Observable.fromCallable(() -> {
-            copyDir(new File(dir), toDir);
-            return toDir.getPath();
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(dest ->
-                                GlobalAppContext.toast(R.string.text_project_save_success, dest),
-                        err ->
-                                GlobalAppContext.toast(R.string.text_project_save_error, err.getMessage())
-                );
-
-    }
-
-    private void copyDir(File fromDir, File toDir) throws FileNotFoundException {
-        toDir.mkdirs();
-        File[] files = fromDir.listFiles();
-        if (files == null || files.length == 0) {
-            return;
-        }
-        for (File file : files) {
-            if (file.isDirectory()) {
-                copyDir(file, new File(toDir, file.getName()));
-            } else {
-                FileOutputStream fos = new FileOutputStream(new File(toDir, file.getName()));
-                PFiles.write(new FileInputStream(file), fos, true);
-            }
-        }
-    }
+//    private void copyDir(File fromDir, File toDir) throws FileNotFoundException {
+//        toDir.mkdirs();
+//        File[] files = fromDir.listFiles();
+//        if (files == null || files.length == 0) {
+//            return;
+//        }
+//        for (File file : files) {
+//            if (file.isDirectory()) {
+//                copyDir(file, new File(toDir, file.getName()));
+//            } else {
+//                FileOutputStream fos = new FileOutputStream(new File(toDir, file.getName()));
+//                PFiles.write(new FileInputStream(file), fos, true);
+//            }
+//        }
+//    }
 
 }
