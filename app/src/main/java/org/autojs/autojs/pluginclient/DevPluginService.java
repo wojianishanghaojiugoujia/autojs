@@ -255,7 +255,7 @@ public class DevPluginService {
 
     @WorkerThread
     private void sayHelloToServer(JsonWebSocket socket) {
-        sendData(TYPE_HELLO, deviceInfo);
+        sendData(TYPE_HELLO, map2json(deviceInfo));
         mHandler.postDelayed(() -> {
             if (mSocket != socket && !socket.isClosed()) {
                 Log.i(LOG_TAG, "onHandshakeTimeout");
@@ -273,22 +273,32 @@ public class DevPluginService {
     }
 
     @AnyThread
-    private static boolean write(JsonWebSocket socket, String type, JsonObject data) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", type);
-        json.add("data", data);
-        return socket.write(json);
+    public void log(String log) {
+        if (!isConnected())
+            return;
+        sendData("log", map2json(new MapBuilder<String, String>().put("log", log).build()));
     }
 
     @AnyThread
-    private static boolean writePair(JsonWebSocket socket, String type, Pair<String, String> pair) {
-        JsonObject data = new JsonObject();
-        data.addProperty(pair.first, pair.second);
-        return write(socket, type, data);
+    public void sendData(String type, JsonObject data) {
+        if (!isConnected())
+            return;
+        write(mSocket, type, data);
     }
 
     @AnyThread
-    private static boolean writeMap(JsonWebSocket socket, String type, Map<String, ?> map) {
+    public void sendCommand(String command, JsonElement data) {
+        if (!data.isJsonObject()) {
+            JsonObject newObj = new JsonObject();
+            newObj.add("data", data);
+            data = newObj;
+        }
+        ((JsonObject) data).addProperty("command", command);
+        sendData(TYPE_CMD, (JsonObject) data);
+    }
+
+    @AnyThread
+    private static JsonObject map2json(Map<String, ?> map) {
         JsonObject data = new JsonObject();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             Object value = entry.getValue();
@@ -306,27 +316,14 @@ public class DevPluginService {
                 throw new IllegalArgumentException("cannot put value " + value + " into json");
             }
         }
-        return write(socket, type, data);
+        return data;
     }
 
-    @SuppressLint("CheckResult")
     @AnyThread
-    public void log(String log) {
-        if (!isConnected())
-            return;
-        writePair(mSocket, "log", new Pair<>("log", log));
-    }
-
-    @SuppressLint("CheckResult")
-    @AnyThread
-    public void sendData(String type, Map<String, Object> data) {
-        if (!isConnected())
-            return;
-        writeMap(mSocket, type, data);
-    }
-
-    public void sendCommand(String command, Map<String, Object> data) {
-        data.put("command", command);
-        sendData(TYPE_CMD, data);
+    private static boolean write(JsonWebSocket socket, String type, JsonObject data) {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", type);
+        json.add("data", data);
+        return socket.write(json);
     }
 }

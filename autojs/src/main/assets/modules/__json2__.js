@@ -505,6 +505,42 @@ JSON = {};
             throw new SyntaxError("JSON.parse");
         };
     }
+
+    function createJsonElement(val){
+        return val === null ? com.google.gson.JsonNull.INSTANCE : new com.google.gson.JsonPrimitive(val)
+    }
+
+    if (typeof JSON.elementOf !== "function") {
+        JSON.elementOf = function(val) {
+            if (val === null) return com.google.gson.JsonNull.INSTANCE;
+            switch (typeof val) {
+            case 'object':
+                if (val instanceof Array) {
+                    var arr = new com.google.gson.JsonArray(val.length);
+                    for (var i in val) arr.add(JSON.elementOf(val[i]));
+                    return arr;
+                } else {
+                    var obj = new com.google.gson.JsonObject();
+                    for (var i in val) {
+                        obj.add(i, JSON.elementOf(val[i]));
+                    }
+                    return obj;
+                }
+            case 'function':
+            case 'symbol':
+            case 'bigint':
+                val = String(val);
+            case 'boolean':
+            case 'number':
+            case 'string':
+                return createJsonElement(val);
+            case 'undefined':
+                return com.google.gson.JsonNull.INSTANCE;
+            default:
+                return createJsonElement('[' + (typeof val) + ']');
+            }
+        }
+    }
 }());
 
 module.exports = JSON;
