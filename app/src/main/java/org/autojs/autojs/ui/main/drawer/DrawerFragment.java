@@ -103,7 +103,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
 
     // 连接超时的定时器
     private Disposable connectTimeoutDisposable;
-    private int timeout = 30;
+    private int timeout = 5;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
