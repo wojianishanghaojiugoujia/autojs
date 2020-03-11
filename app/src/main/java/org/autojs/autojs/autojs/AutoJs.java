@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Looper;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.stardust.app.GlobalAppContext;
@@ -112,12 +113,12 @@ public class AutoJs extends com.stardust.autojs.AutoJs {
     @Override
     protected GlobalConsole createGlobalConsole() {
         return new GlobalConsole(getUiHandler()) {
-            @Override
-            public String println(int level, CharSequence charSequence) {
-                String log = super.println(level, charSequence);
-                DevPluginService.getInstance().log(log);
-                return log;
-            }
+//            @Override
+//            public String println(int level, CharSequence charSequence) {
+//                String log = super.println(level, charSequence);
+//                DevPluginService.getInstance().log(log);
+//                return log;
+//            }
         };
     }
 

@@ -56,8 +56,14 @@ public class JsonWebSocket extends WebSocketListener {
     }
 
     @Override
+    public void onClosing(WebSocket webSocket, int code, String reason) {
+        Log.d(LOG_TAG, "onClosing: code = " + code + ", reason = " + reason);
+        close();
+    }
+
+    @Override
     public void onClosed(WebSocket webSocket, int code, String reason) {
-        Log.d(LOG_TAG, "onFailure: code = " + code + ", reason = " + reason);
+        Log.d(LOG_TAG, "onClosed: code = " + code + ", reason = " + reason);
         close();
     }
 

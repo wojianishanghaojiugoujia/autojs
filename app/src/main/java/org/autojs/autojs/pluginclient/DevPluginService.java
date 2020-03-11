@@ -153,12 +153,7 @@ public class DevPluginService {
                 .addQueryParameter("device_id", deviceId)
                 .toString().substring(4);
         url = (ssl ? "wss" : "ws") + url;
-        return Observable.just(
-                new JsonWebSocket(
-                        client,
-                        new Request.Builder().url(url).build()
-                )
-        )
+        return Observable.just(new JsonWebSocket(client, new Request.Builder().url(url).build()))
                 .doOnNext(socket -> {
                     mSocket = socket;
                     subscribeMessage(socket);
@@ -170,7 +165,9 @@ public class DevPluginService {
     private void subscribeMessage(JsonWebSocket socket) {
         socket.data()
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(() -> mConnectionState.onNext(new State(State.DISCONNECTED)))
+                .doOnComplete(() -> {
+                    mConnectionState.onNext(new State(State.DISCONNECTED));
+                })
                 .subscribe(data -> onSocketData(socket, data), this::onSocketError);
     }
 
@@ -258,16 +255,11 @@ public class DevPluginService {
                 .build());
         mHandler.postDelayed(() -> {
             if (mSocket != socket && !socket.isClosed()) {
-                onHandshakeTimeout(socket);
+                Log.i(LOG_TAG, "onHandshakeTimeout");
+                mConnectionState.onNext(new State(State.DISCONNECTED, new SocketTimeoutException("handshake timeout")));
+                socket.close();
             }
         }, HANDSHAKE_TIMEOUT);
-    }
-
-    @MainThread
-    private void onHandshakeTimeout(JsonWebSocket socket) {
-        Log.i(LOG_TAG, "onHandshakeTimeout");
-        mConnectionState.onNext(new State(State.DISCONNECTED, new SocketTimeoutException("handshake timeout")));
-        socket.close();
     }
 
     @MainThread

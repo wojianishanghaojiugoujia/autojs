@@ -7,8 +7,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -78,9 +76,6 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
 
     @ViewById(R.id.viewpager)
     ViewPager mViewPager;
-
-    @ViewById(R.id.fab)
-    FloatingActionButton mFab;
 
     private FragmentPagerAdapterBuilder.StoredFragmentPagerAdapter mPagerAdapter;
     private OnActivityResultDelegate.Mediator mActivityResultMediator = new OnActivityResultDelegate.Mediator();
@@ -170,9 +165,6 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
         TabLayout tabLayout = $(R.id.tab);
         mPagerAdapter = new FragmentPagerAdapterBuilder(this)
                 .add(new MyScriptListFragment_(), R.string.text_file)
-                .add(new DocsFragment_(), R.string.text_tutorial)
-                .add(new CommunityFragment_(), R.string.text_community)
-                .add(new MarketFragment(), R.string.text_market)
                 .add(new TaskManagerFragment_(), R.string.text_manage)
                 .build();
         mViewPager.setAdapter(mPagerAdapter);
@@ -182,7 +174,6 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
 
     private void setUpViewPagerFragmentBehaviors() {
         mPagerAdapter.setOnFragmentInstantiateListener((pos, fragment) -> {
-            ((ViewPagerFragment) fragment).setFab(mFab);
             if (pos == mViewPager.getCurrentItem()) {
                 ((ViewPagerFragment) fragment).onPageShow();
             }
@@ -203,7 +194,6 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
             }
         });
     }
-
 
     @Click(R.id.setting)
     void startSettingActivity() {
@@ -253,15 +243,6 @@ public class MainActivity extends BaseActivity implements OnActivityResultDelega
         }
         return grantResults[i];
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (!BuildConfig.DEBUG) {
-            DeveloperUtils.verifyApk(this, R.string.dex_crcs);
-        }
-    }
-
 
     @NonNull
     @Override
