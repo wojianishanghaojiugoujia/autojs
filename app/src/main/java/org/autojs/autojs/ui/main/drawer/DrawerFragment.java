@@ -109,8 +109,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        是否断线重连 = 断线重连菜单项.isChecked();
-
+        是否断线重连 = Pref.getAutoReconnect(false);
         断线重连_尝试间隔 = Pref.getReconnectInterval(10);
         断线重连_最大尝试次数 = Pref.getReconnectMaxTimes(5);
 
@@ -162,7 +161,13 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        更新查看使用统计权限和读取通知权限();
+        setChecked(无障碍服务菜单项, AccessibilityServiceTool.isAccessibilityServiceEnabled(getActivity()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            setChecked(通知权限菜单项, NotificationListenerService.Companion.getInstance() != null);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setChecked(统计权限菜单项, AppOpsKt.isOpPermissionGranted(getContext(), AppOpsManager.OPSTR_GET_USAGE_STATS));
+        }
     }
 
     @Override
@@ -174,7 +179,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     }
 
     @AfterViews
-    void 初始化视图页面() {
+    void 视图更新() {
         初始化菜单列表();
         if (Pref.isFloatingMenuShown()) {
             FloatyWindowManger.showCircularMenuIfNeeded();
@@ -505,16 +510,6 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                     }
                     setProgress(无障碍服务菜单项, false);
                 });
-    }
-
-    private void 更新查看使用统计权限和读取通知权限() {
-        setChecked(无障碍服务菜单项, AccessibilityServiceTool.isAccessibilityServiceEnabled(getActivity()));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            setChecked(通知权限菜单项, NotificationListenerService.Companion.getInstance() != null);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setChecked(统计权限菜单项, AppOpsKt.isOpPermissionGranted(getContext(), AppOpsManager.OPSTR_GET_USAGE_STATS));
-        }
     }
 
     private void 初始化菜单列表() {
