@@ -13,8 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.InputType;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -27,6 +25,7 @@ import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.external.foreground.ForegroundService;
 import org.autojs.autojs.network.UserService;
+import org.autojs.autojs.pluginclient.DevPluginResponseHandler;
 import org.autojs.autojs.tool.Observers;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.common.NotAskAgainDialog;
@@ -39,9 +38,6 @@ import org.autojs.autojs.ui.main.MainActivity;
 import org.autojs.autojs.ui.main.community.CommunityFragment;
 import org.autojs.autojs.ui.settings.SettingsActivity;
 import org.autojs.autojs.ui.update.UpdateInfoDialogBuilder;
-import org.autojs.autojs.ui.widget.AvatarView;
-
-import com.stardust.theme.ThemeColorManager;
 
 import com.stardust.view.accessibility.AccessibilityService;
 
@@ -63,7 +59,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -96,6 +91,8 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     private Disposable mReConnectionStateDisposable;
     private Disposable tryReconnectDisposable;
 
+    private Disposable forceCloseDisposable;
+
     private int 断线重连_尝试次数 = 0;
     private int 断线重连_尝试间隔 = 10;
     private int 断线重连_最大尝试次数 = 5;
@@ -109,12 +106,23 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        是否断线重连 = Pref.getAutoReconnect(false);
+        设置断线重连(Pref.getAutoReconnect(false), false);
         断线重连_尝试间隔 = Pref.getReconnectInterval(10);
         断线重连_最大尝试次数 = Pref.getReconnectMaxTimes(5);
         if (是否断线重连) {
-            启动断线重连();
+            启动断线重连线程();
         }
+
+        forceCloseDisposable = DevPluginService.getInstance().getSimpleCmd()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(state -> {
+                    switch (state.first) {
+                        case DevPluginResponseHandler.SIMPLE_CMD_FORCE_CLOSE:
+                            设置断线重连(false);
+                            DevPluginService.getInstance().disconnectIfNeeded();
+                            break;
+                    }
+                });
 
         mConnectionStateDisposable = DevPluginService.getInstance().connectionState()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -139,10 +147,10 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                     if (state.getState() == DevPluginService.State.DISCONNECTED) { // 如果是断开连接，那么就判断是否需要重新连接
                         if (是否断线重连) {
                             if (断线重连_尝试次数 <= 断线重连_最大尝试次数 || 断线重连_最大尝试次数 == 0) {
-                                取消断线重连();
-                                启动断线重连();
+                                取消断线重连线程();
+                                启动断线重连线程();
                             } else {
-                                setChecked(断线重连菜单项, false);
+                                设置断线重连(false);
                                 int n = AutoJs.getInstance().getScriptEngineService().stopAll();
                                 吐司消息L("超过尝试重连次数，关闭所有正在执行的脚本" + n);
                             }
@@ -171,7 +179,8 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         super.onDestroy();
         mConnectionStateDisposable.dispose();
         mReConnectionStateDisposable.dispose();
-        取消断线重连();
+        forceCloseDisposable.dispose();
+        取消断线重连线程();
         EventBus.getDefault().unregister(this);
     }
 
@@ -183,7 +192,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
             setChecked(悬浮窗菜单项, true);
         }
         setChecked(连接电脑菜单项, DevPluginService.getInstance().isConnected());
-        setChecked(断线重连菜单项, 是否断线重连); // 默认都是不自动连接
+        设置断线重连(是否断线重连);
         if (Pref.isForegroundServiceEnabled()) {
             ForegroundService.start(GlobalAppContext.get());
             setChecked(前台服务菜单项, true);
@@ -293,20 +302,17 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                                     Pref.saveReconnectMaxTimes(断线重连_最大尝试次数);
                                     Pref.saveReconnectInterval(断线重连_尝试间隔);
 
-                                    是否断线重连 = true;
-                                    Pref.saveAutoReconnect(true);
+                                    设置断线重连(true);
                                 }))
                                 .cancelable(true)
-                                .cancelListener(dialog1 -> setChecked(断线重连菜单项, false))
+                                .cancelListener(dialog1 -> 设置断线重连(false))
                                 .show();
                     }))
                     .cancelable(true)
-                    .cancelListener(dialog1 -> setChecked(断线重连菜单项, false))
+                    .cancelListener(dialog1 -> 设置断线重连(false))
                     .show();
         } else {
-            是否断线重连 = false;
-            Pref.saveAutoReconnect(false);
-            取消断线重连();
+            设置断线重连(false);
         }
     }
 
@@ -355,7 +361,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
 
     // 连接服务器
     private Disposable connectToServer(String ip, int port) {
-        取消断线重连();
+        取消断线重连线程();
         if (connectTimeoutDisposable != null && !connectTimeoutDisposable.isDisposed()) {
             connectTimeoutDisposable.dispose();
         }
@@ -405,20 +411,38 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
                 .show();
     }
 
-    private void 取消断线重连() {
+    private void 设置断线重连(boolean b) {
+        设置断线重连(b, true);
+    }
+
+    private void 设置断线重连(boolean b, boolean update) {
+        是否断线重连 = b;
+        Pref.saveAutoReconnect(b);
+        if (update) {
+            setChecked(断线重连菜单项, 是否断线重连); // 默认都是不自动连接
+        }
+
+        if (!b) {
+            取消断线重连线程();
+        }
+    }
+
+    private void 取消断线重连线程() {
         if (tryReconnectDisposable != null && !tryReconnectDisposable.isDisposed()) {
             tryReconnectDisposable.dispose();
         }
     }
 
-    private void 启动断线重连() {
-        if (是否断线重连 && (tryReconnectDisposable == null || tryReconnectDisposable.isDisposed())) {
-            tryReconnectDisposable = Observable.timer(断线重连_尝试间隔, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
-                    .subscribe(aLong -> {
-                        断线重连_尝试次数++;
-                        吐司消息("尝试重新连接(" + 断线重连_尝试次数 + ")");
-                        connectToServer();
-                    });
+    private void 启动断线重连线程() {
+        if (!DevPluginService.getInstance().isConnected()) {
+            if (是否断线重连 && (tryReconnectDisposable == null || tryReconnectDisposable.isDisposed())) {
+                tryReconnectDisposable = Observable.timer(断线重连_尝试间隔, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+                        .subscribe(aLong -> {
+                            断线重连_尝试次数++;
+                            吐司消息("尝试重新连接(" + 断线重连_尝试次数 + ")");
+                            connectToServer();
+                        });
+            }
         }
     }
 

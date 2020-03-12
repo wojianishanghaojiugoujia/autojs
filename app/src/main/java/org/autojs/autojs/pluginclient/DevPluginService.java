@@ -165,6 +165,10 @@ public class DevPluginService {
         mSocket = null;
     }
 
+    public Observable<Pair<Integer, JsonObject>> getSimpleCmd() {
+        return mResponseHandler.getSimpleCmd();
+    }
+
     public Observable<State> connectionState() {
         return mConnectionState;
     }

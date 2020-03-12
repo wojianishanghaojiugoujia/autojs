@@ -3,6 +3,7 @@ package org.autojs.autojs.pluginclient;
 import android.annotation.SuppressLint;
 import android.renderscript.ScriptC;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -33,13 +34,26 @@ import java.util.HashMap;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 /**
  * Created by Stardust on 2017/5/11.
  */
 public class DevPluginResponseHandler implements Handler {
+    private final PublishSubject<Pair<Integer, JsonObject>> simpleCmd = PublishSubject.create();
+
+    public static final int SIMPLE_CMD_FORCE_CLOSE = 1;
+
+    Observable<Pair<Integer, JsonObject>> getSimpleCmd() {
+        return simpleCmd;
+    }
+
     private Router mRouter = new Router.RootRouter("type")
             .handler("command", new Router("command")
+                    .handler("force-close", data -> {
+                        simpleCmd.onNext(new Pair<>(SIMPLE_CMD_FORCE_CLOSE, data));
+                        return true;
+                    })
                     .handler("run", data -> {
                         String script = data.get("script").getAsString();
                         String name = getName(data);
