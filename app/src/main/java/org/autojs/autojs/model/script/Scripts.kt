@@ -3,19 +3,18 @@ package org.autojs.autojs.model.script
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.annotation.Nullable
 import android.widget.Toast
-
+import androidx.annotation.Nullable
 import com.stardust.app.GlobalAppContext
 import com.stardust.autojs.execution.ExecutionConfig
+import com.stardust.autojs.execution.ScriptExecuteActivity
 import com.stardust.autojs.execution.ScriptExecution
-import com.stardust.autojs.execution.ScriptExecutionListener
 import com.stardust.autojs.execution.SimpleScriptExecutionListener
 import com.stardust.autojs.project.ScriptConfig
 import com.stardust.autojs.runtime.exception.ScriptInterruptedException
+import com.stardust.autojs.script.JavaScriptSource
 import com.stardust.autojs.script.ScriptSource
 import com.stardust.util.IntentUtil
-
 import org.autojs.autojs.Pref
 import org.autojs.autojs.R
 import org.autojs.autojs.autojs.AutoJs
@@ -24,9 +23,7 @@ import org.autojs.autojs.external.fileprovider.AppFileProvider
 import org.autojs.autojs.external.shortcut.Shortcut
 import org.autojs.autojs.external.shortcut.ShortcutActivity
 import org.autojs.autojs.ui.edit.EditActivity
-
 import org.mozilla.javascript.RhinoException
-
 import java.io.File
 import java.io.FileFilter
 
@@ -101,15 +98,19 @@ object Scripts {
     }
 
     fun run(file: ScriptFile): ScriptExecution? {
+        val source = file.toSource()
+        val scriptConfig = getScriptConfig(source)
         return try {
             AutoJs.getInstance().scriptEngineService.execute(file.toSource(),
-                    ExecutionConfig(workingDirectory = file.parent))
+                    ExecutionConfig(
+                            workingDirectory = file.parent,
+                            scriptConfig = scriptConfig
+                    ))
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(GlobalAppContext.get(), e.message, Toast.LENGTH_LONG).show()
             null
         }
-
     }
 
     fun run(source: ScriptSource, config: ScriptConfig): ScriptExecution? {
@@ -133,16 +134,31 @@ object Scripts {
     }
 
     fun runWithBroadcastSender(file: File): ScriptExecution {
-        return AutoJs.getInstance().scriptEngineService.execute(ScriptFile(file).toSource(), BROADCAST_SENDER_SCRIPT_EXECUTION_LISTENER,
-                ExecutionConfig(workingDirectory = file.parent))
+        val source = ScriptFile(file).toSource()
+        val scriptConfig = getScriptConfig(source)
+        return AutoJs.getInstance().scriptEngineService.execute(
+                source, BROADCAST_SENDER_SCRIPT_EXECUTION_LISTENER,
+                ExecutionConfig(
+                        workingDirectory = file.parent,
+                        scriptConfig = scriptConfig
+                )
+        )
     }
-
 
     fun runRepeatedly(scriptFile: ScriptFile, loopTimes: Int, delay: Long, interval: Long): ScriptExecution {
         val source = scriptFile.toSource()
         val directoryPath = scriptFile.parent
-        return AutoJs.getInstance().scriptEngineService.execute(source, ExecutionConfig(workingDirectory = directoryPath,
-                delay = delay, loopTimes = loopTimes, interval = interval))
+        val scriptConfig = getScriptConfig(source)
+        return AutoJs.getInstance().scriptEngineService.execute(
+                source,
+                ExecutionConfig(
+                        workingDirectory = directoryPath,
+                        delay = delay,
+                        loopTimes = loopTimes,
+                        interval = interval,
+                        scriptConfig = scriptConfig
+                )
+        )
     }
 
     @Nullable
@@ -164,6 +180,21 @@ object Scripts {
                 .putExtra(Intent.EXTRA_STREAM, IntentUtil.getUriOfFile(context, file.path, AppFileProvider.AUTHORITY)),
                 GlobalAppContext.getString(R.string.text_send)
         ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
 
+    private fun getScriptConfig(source: ScriptSource): ScriptConfig {
+        val list = ArrayList<String>()
+        var uiMode = false
+
+        if (source is JavaScriptSource) {
+            val mode = source.executionMode
+            if (mode and JavaScriptSource.EXECUTION_MODE_UI != 0) {
+                uiMode = true
+            }
+            if (mode and JavaScriptSource.EXECUTION_MODE_CONTINUATION != 0) {
+                list.add(ScriptConfig.FEATURE_CONTINUATION);
+            }
+        }
+        return ScriptConfig(list, uiMode)
     }
 }

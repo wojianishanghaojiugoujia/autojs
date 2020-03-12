@@ -27,12 +27,14 @@ public abstract class JavaScriptSource extends ScriptSource {
     public static final int EXECUTION_MODE_NORMAL = 0;
     public static final int EXECUTION_MODE_UI = 0x00000001;
     public static final int EXECUTION_MODE_AUTO = 0x00000002;
+    public static final int EXECUTION_MODE_CONTINUATION = 0x00000004;
 
     private static final String LOG_TAG = "JavaScriptSource";
 
     private static final Map<String, Integer> EXECUTION_MODES = new MapBuilder<String, Integer>()
             .put("ui", EXECUTION_MODE_UI)
             .put("auto", EXECUTION_MODE_AUTO)
+            .put("continuation", EXECUTION_MODE_CONTINUATION)
             .build();
     private static final int PARSING_MAX_TOKEN = 300;
 

@@ -78,10 +78,9 @@ open class RhinoJavaScriptEngine(private val mAndroidContext: android.content.Co
         } catch (e: IOException) {
             throw UncheckedIOException(e)
         }
-
     }
 
-    fun hasFeature(feature: String): Boolean {
+    private fun hasFeature(feature: String): Boolean {
         val config = getTag(ExecutionConfig.tag) as ExecutionConfig?
         return config != null && config.scriptConfig.hasFeature(feature)
     }
