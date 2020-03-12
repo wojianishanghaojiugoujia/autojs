@@ -48,15 +48,18 @@ public class DevPluginResponseHandler implements Handler {
                         runScript(id, name, script, scriptConfig);
                         return true;
                     })
+                    .handler("onlyrun", data -> {
+                        String script = data.get("script").getAsString();
+                        String name = getName(data);
+                        String id = data.get("id").getAsString();
+                        ScriptConfig scriptConfig = getScriptConfig(data);
+                        AutoJs.getInstance().getScriptEngineService().stopAllAndToast();
+                        runScript(id, name, script, scriptConfig);
+                        return true;
+                    })
                     .handler("stop", data -> {
                         String id = data.get("id").getAsString();
                         stopScript(id);
-                        return true;
-                    })
-                    .handler("save", data -> {
-                        String script = data.get("script").getAsString();
-                        String name = getName(data);
-                        saveScript(name, script);
                         return true;
                     })
                     .handler("rerun", data -> {
@@ -68,12 +71,16 @@ public class DevPluginResponseHandler implements Handler {
                         runScript(id, name, script, scriptConfig);
                         return true;
                     })
+                    .handler("save", data -> {
+                        String script = data.get("script").getAsString();
+                        String name = getName(data);
+                        saveScript(name, script);
+                        return true;
+                    })
                     .handler("stopAll", data -> {
                         AutoJs.getInstance().getScriptEngineService().stopAllAndToast();
                         return true;
-                    }))
-            ;
-
+                    }));
 
     private HashMap<String, ScriptExecution> mScriptExecutions = new HashMap<>();
     private final File mCacheDir;
@@ -101,6 +108,7 @@ public class DevPluginResponseHandler implements Handler {
         } else {
             name = PFiles.getNameWithoutExtension(name);
         }
+
         mScriptExecutions.put(viewId, Scripts.INSTANCE.run(new StringScriptSource("[remote]" + name, script), config));
     }
 
