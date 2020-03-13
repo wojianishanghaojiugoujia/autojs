@@ -14,7 +14,9 @@ data class ExecutionConfig(var workingDirectory: String = "",
                            var delay: Long = 0,
                            var interval: Long = 0,
                            var loopTimes: Int = 1,
-                           var scriptConfig: ScriptConfig = ScriptConfig()) : Parcelable {
+                           var scriptConfig: ScriptConfig = ScriptConfig(),
+                           var runningId: String? = null
+) : Parcelable {
 
 
     private val mArguments = HashMap<String, Any>()

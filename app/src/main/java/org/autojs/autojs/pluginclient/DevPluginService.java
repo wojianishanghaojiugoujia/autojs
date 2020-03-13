@@ -15,20 +15,27 @@ import android.util.Pair;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.stardust.app.GlobalAppContext;
+import com.stardust.autojs.execution.ExecutionConfig;
+import com.stardust.autojs.execution.ScriptExecution;
+import com.stardust.autojs.execution.ScriptExecutionListener;
 import com.stardust.autojs.runtime.api.Device;
 import com.stardust.util.MapBuilder;
 
 import org.autojs.autojs.BuildConfig;
+import org.autojs.autojs.autojs.AutoJs;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -46,6 +53,14 @@ public class DevPluginService {
     private static final String LOG_TAG = "DevPluginService";
     private static final String TYPE_HELLO = "hello";
     private static final String TYPE_CMD = "command";
+
+    private static final String CMD_SCRIPT_CHANGED = "script:changed";
+
+    private static final Number SCRIPT_STATE_UNKNOWN = 0; // 未开始
+    private static final Number SCRIPT_STATE_START = 1; // 开始
+    private static final Number SCRIPT_STATE_END = 2; // 结束
+    private static final Number SCRIPT_STATE_ERROR = 3; // 错误
+
     private static final long HANDSHAKE_TIMEOUT = 10 * 1000;
 
     public static class State {
@@ -140,6 +155,54 @@ public class DevPluginService {
                 .put("app_version", BuildConfig.VERSION_NAME)
                 .put("app_version_code", BuildConfig.VERSION_CODE)
                 .build();
+
+        AutoJs.getInstance().getScriptEngineService().registerGlobalScriptExecutionListener(new ScriptExecutionListener() {
+            @Override
+            public void onStart(ScriptExecution execution) {
+                ExecutionConfig config = execution.getConfig();
+                if (config.getRunningId() != null) {
+                    sendCommand(CMD_SCRIPT_CHANGED, map2json(new MapBuilder<String, Object>()
+                            .put("id", config.getRunningId())
+                            .put("state", SCRIPT_STATE_START)
+                            .put("start_time", System.currentTimeMillis())
+                            .build()
+                    ));
+                }
+            }
+
+            @Override
+            public void onSuccess(ScriptExecution execution, Object result) {
+                ExecutionConfig config = execution.getConfig();
+                if (config.getRunningId() != null) {
+                    sendCommand(CMD_SCRIPT_CHANGED, map2json(new MapBuilder<String, Object>()
+                            .put("id", config.getRunningId())
+                            .put("state", SCRIPT_STATE_END)
+                            .put("end_time", System.currentTimeMillis())
+                            .build()
+                    ));
+                }
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onException(ScriptExecution execution, Throwable e) {
+                ExecutionConfig config = execution.getConfig();
+                if (config.getRunningId() != null) {
+                    ArrayList<String> traces = new ArrayList<>();
+                    traces.add(e.getMessage());
+                    for (StackTraceElement ste : e.getStackTrace()) {
+                        traces.add(ste.toString());
+                    }
+                    sendCommand(CMD_SCRIPT_CHANGED, map2json(new MapBuilder<String, Object>()
+                            .put("id", config.getRunningId())
+                            .put("state", SCRIPT_STATE_ERROR)
+                            .put("end_time", System.currentTimeMillis())
+                            .put("stack_trace", arr2json(traces))
+                            .build()
+                    ));
+                }
+            }
+        });
     }
 
     @AnyThread
@@ -301,6 +364,27 @@ public class DevPluginService {
         sendData(TYPE_CMD, (JsonObject) data);
     }
 
+    private static JsonArray arr2json(List<?> arr) {
+        JsonArray jarr = new JsonArray();
+        for (Object value : arr) {
+            if (value instanceof String) {
+                jarr.add((String) value);
+            } else if (value instanceof Character) {
+                jarr.add((Character) value);
+            } else if (value instanceof Number) {
+                jarr.add((Number) value);
+            } else if (value instanceof Boolean) {
+                jarr.add((Boolean) value);
+            } else if (value instanceof JsonElement) {
+                jarr.add((JsonElement) value);
+            } else {
+                jarr.add(JsonNull.INSTANCE);
+//                throw new IllegalArgumentException("cannot put value " + value + " into json");
+            }
+        }
+        return jarr;
+    }
+
     @AnyThread
     private static JsonObject map2json(Map<String, ?> map) {
         JsonObject data = new JsonObject();
@@ -317,7 +401,8 @@ public class DevPluginService {
             } else if (value instanceof JsonElement) {
                 data.add(entry.getKey(), (JsonElement) value);
             } else {
-                throw new IllegalArgumentException("cannot put value " + value + " into json");
+                data.add(entry.getKey(), JsonNull.INSTANCE);
+//                throw new IllegalArgumentException("cannot put value " + value + " into json");
             }
         }
         return data;

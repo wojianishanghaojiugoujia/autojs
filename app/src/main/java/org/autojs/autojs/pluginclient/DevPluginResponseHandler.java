@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.stardust.app.GlobalAppContext;
+import com.stardust.autojs.execution.ExecutionConfig;
 import com.stardust.autojs.execution.ScriptExecution;
 import com.stardust.autojs.project.ProjectLauncher;
 import com.stardust.autojs.project.ScriptConfig;
@@ -29,7 +30,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -58,17 +61,28 @@ public class DevPluginResponseHandler implements Handler {
                         String script = data.get("script").getAsString();
                         String name = getName(data);
                         String id = data.get("id").getAsString();
-                        ScriptConfig scriptConfig = getScriptConfig(data);
-                        runScript(id, name, script, scriptConfig);
+                        ExecutionConfig config = getExecutionConfig(data);
+                        runScript(id, name, script, config);
                         return true;
                     })
-                    .handler("onlyrun", data -> {
+                    .handler("onlyRun", data -> {
                         String script = data.get("script").getAsString();
                         String name = getName(data);
                         String id = data.get("id").getAsString();
-                        ScriptConfig scriptConfig = getScriptConfig(data);
+                        ExecutionConfig config = getExecutionConfig(data);
+
                         AutoJs.getInstance().getScriptEngineService().stopAllAndToast();
-                        runScript(id, name, script, scriptConfig);
+                        runScript(id, name, script, config);
+                        return true;
+                    })
+                    .handler("rerun", data -> {
+                        String id = data.get("id").getAsString();
+                        String script = data.get("script").getAsString();
+                        String name = getName(data);
+                        ExecutionConfig config = getExecutionConfig(data);
+
+                        stopScript(id);
+                        runScript(id, name, script, config);
                         return true;
                     })
                     .handler("stop", data -> {
@@ -76,13 +90,8 @@ public class DevPluginResponseHandler implements Handler {
                         stopScript(id);
                         return true;
                     })
-                    .handler("rerun", data -> {
-                        String id = data.get("id").getAsString();
-                        String script = data.get("script").getAsString();
-                        String name = getName(data);
-                        ScriptConfig scriptConfig = getScriptConfig(data);
-                        stopScript(id);
-                        runScript(id, name, script, scriptConfig);
+                    .handler("stopAll", data -> {
+                        AutoJs.getInstance().getScriptEngineService().stopAllAndToast();
                         return true;
                     })
                     .handler("save", data -> {
@@ -91,16 +100,11 @@ public class DevPluginResponseHandler implements Handler {
                         saveScript(name, script);
                         return true;
                     })
-                    .handler("stopAll", data -> {
-                        AutoJs.getInstance().getScriptEngineService().stopAllAndToast();
-                        return true;
-                    }));
+            );
 
-    private HashMap<String, ScriptExecution> mScriptExecutions = new HashMap<>();
-    private final File mCacheDir;
+    private HashMap<String, ArrayList<ScriptExecution>> mScriptExecutions = new HashMap<>();
 
-    public DevPluginResponseHandler(File cacheDir) {
-        mCacheDir = cacheDir;
+    DevPluginResponseHandler(File cacheDir) {
         if (cacheDir.exists()) {
             if (cacheDir.isDirectory()) {
                 PFiles.deleteFilesOfDir(cacheDir);
@@ -116,32 +120,42 @@ public class DevPluginResponseHandler implements Handler {
         return mRouter.handle(data);
     }
 
-    private void runScript(String viewId, String name, String script, ScriptConfig config) {
+    private void runScript(String viewId, String name, String script, ExecutionConfig executionConfig) {
         if (TextUtils.isEmpty(name)) {
             name = "[" + viewId + "]";
         } else {
             name = PFiles.getNameWithoutExtension(name);
         }
 
-        mScriptExecutions.put(viewId, Scripts.INSTANCE.run(new StringScriptSource("[remote]" + name, script), config));
+        ArrayList<ScriptExecution> executions = mScriptExecutions.get(viewId);
+        if (executions == null) {
+            executions = new ArrayList<>();
+            mScriptExecutions.put(viewId, executions);
+        }
+
+        executionConfig.setRunningId(viewId);
+        executions.add(Scripts.INSTANCE.run(new StringScriptSource("[remote]" + name, script), executionConfig));
     }
 
     private void stopScript(String viewId) {
-        ScriptExecution execution = mScriptExecutions.get(viewId);
-        if (execution != null) {
-            execution.getEngine().forceStop();
+        ArrayList<ScriptExecution> executions = mScriptExecutions.get(viewId);
+        if (executions != null) {
+            for (ScriptExecution execution : executions) {
+                execution.getEngine().forceStop();
+            }
             mScriptExecutions.remove(viewId);
         }
     }
 
-    private ScriptConfig getScriptConfig(JsonObject data) {
-        ScriptConfig config;
-        JsonElement element = data.get("scriptConfig");
-        if (!element.isJsonObject()) {
-            config = new ScriptConfig();
+    private ExecutionConfig getExecutionConfig(JsonObject data) {
+        ExecutionConfig config;
+        JsonElement element = data.get("executionConfig");
+        if (element.isJsonObject()) {
+            config = new Gson().fromJson(element.getAsJsonObject(), ExecutionConfig.class);
         } else {
-            config = new Gson().fromJson(element.getAsJsonObject(), ScriptConfig.class);
+            config = new ExecutionConfig();
         }
+
         return config;
     }
 

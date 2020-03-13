@@ -24,6 +24,7 @@ import org.autojs.autojs.external.shortcut.Shortcut
 import org.autojs.autojs.external.shortcut.ShortcutActivity
 import org.autojs.autojs.ui.edit.EditActivity
 import org.mozilla.javascript.RhinoException
+import org.mozilla.javascript.Script
 import java.io.File
 import java.io.FileFilter
 
@@ -113,14 +114,25 @@ object Scripts {
         }
     }
 
+    fun run(source: ScriptSource): ScriptExecution? {
+        return run(source, ScriptConfig())
+    }
+
     fun run(source: ScriptSource, config: ScriptConfig): ScriptExecution? {
+        return run(source, ExecutionConfig(
+                workingDirectory = Pref.getScriptDirPath(),
+                scriptConfig = config
+        ))
+    }
+
+    fun run(source: ScriptSource, executionConfig: ExecutionConfig): ScriptExecution? {
         return try {
+            if (executionConfig.workingDirectory == "") {
+                executionConfig.workingDirectory = Pref.getScriptDirPath()
+            }
             AutoJs.getInstance().scriptEngineService.execute(
                     source,
-                    ExecutionConfig(
-                            workingDirectory = Pref.getScriptDirPath(),
-                            scriptConfig = config
-                    )
+                    executionConfig
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -129,15 +141,12 @@ object Scripts {
         }
     }
 
-    fun run(source: ScriptSource): ScriptExecution? {
-        return run(source, ScriptConfig())
-    }
-
     fun runWithBroadcastSender(file: File): ScriptExecution {
         val source = ScriptFile(file).toSource()
         val scriptConfig = getScriptConfig(source)
         return AutoJs.getInstance().scriptEngineService.execute(
-                source, BROADCAST_SENDER_SCRIPT_EXECUTION_LISTENER,
+                source,
+                BROADCAST_SENDER_SCRIPT_EXECUTION_LISTENER,
                 ExecutionConfig(
                         workingDirectory = file.parent,
                         scriptConfig = scriptConfig
