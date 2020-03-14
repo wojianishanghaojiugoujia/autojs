@@ -2,27 +2,26 @@ package com.stardust.autojs.execution
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.stardust.autojs.project.ScriptConfig
 import java.util.*
 
 /**
  * Created by Stardust on 2017/2/1.
  */
-data class ExecutionConfig(var workingDirectory: String = "",
-                           var path: Array<out String> = emptyArray(),
-                           var intentFlags: Int = 0,
-                           var delay: Long = 0,
-                           var interval: Long = 0,
-                           var loopTimes: Int = 1,
-                           var scriptConfig: ScriptConfig = ScriptConfig(),
-                           var runningId: String? = null
+data class ExecutionConfig(
+        @SerializedName("workingDirectory") var workingDirectory: String = "",
+        @SerializedName("path") var path: Array<out String> = emptyArray(),
+        @SerializedName("intentFlags") var intentFlags: Int = 0,
+        @SerializedName("delay") var delay: Long = 0,
+        @SerializedName("interval") var interval: Long = 0,
+        @SerializedName("loopTimes") var loopTimes: Int = 1,
+        @SerializedName("scriptConfig") var scriptConfig: ScriptConfig = ScriptConfig()
 ) : Parcelable {
 
-
-    private val mArguments = HashMap<String, Any>()
-
-    val arguments: Map<String, Any>
-        get() = mArguments
+    private val mArguments = HashMap<String, Any?>()
+    val arguments: Map<String, Any?> get() = mArguments
 
     constructor(parcel: Parcel) : this(
             parcel.readString().orEmpty(),
@@ -32,7 +31,7 @@ data class ExecutionConfig(var workingDirectory: String = "",
             parcel.readLong(),
             parcel.readInt())
 
-    fun setArgument(key: String, `object`: Any) {
+    fun setArgument(key: String, `object`: Any?) {
         mArguments[key] = `object`
     }
 
@@ -41,6 +40,7 @@ data class ExecutionConfig(var workingDirectory: String = "",
     }
 
     override fun equals(other: Any?): Boolean {
+
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 

@@ -32,12 +32,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
+
+import static org.autojs.autojs.pluginclient.Utils.json2val;
 
 /**
  * Created by Stardust on 2017/5/11.
@@ -60,7 +59,7 @@ public class DevPluginResponseHandler implements Handler {
                     .handler("run", data -> {
                         String script = data.get("script").getAsString();
                         String name = getName(data);
-                        String id = data.get("id").getAsString();
+                        String id = getId(data);
                         ExecutionConfig config = getExecutionConfig(data);
                         runScript(id, name, script, config);
                         return true;
@@ -68,7 +67,7 @@ public class DevPluginResponseHandler implements Handler {
                     .handler("onlyRun", data -> {
                         String script = data.get("script").getAsString();
                         String name = getName(data);
-                        String id = data.get("id").getAsString();
+                        String id = getId(data);
                         ExecutionConfig config = getExecutionConfig(data);
 
                         AutoJs.getInstance().getScriptEngineService().stopAllAndToast();
@@ -76,9 +75,9 @@ public class DevPluginResponseHandler implements Handler {
                         return true;
                     })
                     .handler("rerun", data -> {
-                        String id = data.get("id").getAsString();
                         String script = data.get("script").getAsString();
                         String name = getName(data);
+                        String id = getId(data);
                         ExecutionConfig config = getExecutionConfig(data);
 
                         stopScript(id);
@@ -86,7 +85,7 @@ public class DevPluginResponseHandler implements Handler {
                         return true;
                     })
                     .handler("stop", data -> {
-                        String id = data.get("id").getAsString();
+                        String id = getId(data);
                         stopScript(id);
                         return true;
                     })
@@ -133,7 +132,6 @@ public class DevPluginResponseHandler implements Handler {
             mScriptExecutions.put(viewId, executions);
         }
 
-        executionConfig.setRunningId(viewId);
         executions.add(Scripts.INSTANCE.run(new StringScriptSource("[remote]" + name, script), executionConfig));
     }
 
@@ -156,7 +154,22 @@ public class DevPluginResponseHandler implements Handler {
             config = new ExecutionConfig();
         }
 
+        JsonElement argv = data.get("argv");
+        if (argv.isJsonObject()) {
+            for (String key : ((JsonObject) argv).keySet()) {
+                config.setArgument(key, json2val(((JsonObject) argv).get(key)));
+            }
+        }
+
         return config;
+    }
+
+    private String getId(JsonObject data) {
+        JsonElement element = data.get("id");
+        if (element instanceof JsonNull) {
+            return null;
+        }
+        return element.getAsString();
     }
 
     private String getName(JsonObject data) {

@@ -1,41 +1,28 @@
 package org.autojs.autojs.pluginclient;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 
 import android.util.Log;
 import android.util.Pair;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.stardust.app.GlobalAppContext;
-import com.stardust.autojs.execution.ExecutionConfig;
-import com.stardust.autojs.execution.ScriptExecution;
-import com.stardust.autojs.execution.ScriptExecutionListener;
-import com.stardust.autojs.runtime.api.Device;
 import com.stardust.util.MapBuilder;
 
-import org.autojs.autojs.BuildConfig;
 import org.autojs.autojs.autojs.AutoJs;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -44,22 +31,18 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
+import static org.autojs.autojs.pluginclient.Utils.val2json;
+
 /**
  * Created by Stardust on 2017/5/11.
  */
 public class DevPluginService {
 
-    private static final int CLIENT_VERSION = 2;
+    static final int CLIENT_VERSION = 2;
     private static final String LOG_TAG = "DevPluginService";
     private static final String TYPE_HELLO = "hello";
+    private static final String TYPE_LOG = "log";
     private static final String TYPE_CMD = "command";
-
-    private static final String CMD_SCRIPT_CHANGED = "script:changed";
-
-    private static final Number SCRIPT_STATE_UNKNOWN = 0; // 未开始
-    private static final Number SCRIPT_STATE_START = 1; // 开始
-    private static final Number SCRIPT_STATE_END = 2; // 结束
-    private static final Number SCRIPT_STATE_ERROR = 3; // 错误
 
     private static final long HANDSHAKE_TIMEOUT = 10 * 1000;
 
@@ -95,114 +78,18 @@ public class DevPluginService {
     private final DevPluginResponseHandler mResponseHandler;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private volatile JsonWebSocket mSocket;
-    public Device device;
-    private String deviceId;
     private Map<String, Object> deviceInfo;
+    private static AtomicInteger baseTaskMaxId = new AtomicInteger(0); // 任务的自增id， 这里的id+任务的id才是真正的id
 
     public static DevPluginService getInstance() {
         return sInstance;
     }
 
-    public DevPluginService() {
+    private DevPluginService() {
         File cache = new File(GlobalAppContext.get().getCacheDir(), "remote_project");
         mResponseHandler = new DevPluginResponseHandler(cache);
-        device = new Device(GlobalAppContext.get());
-        deviceId = device.getIMEI();
-
-        ArrayList<String> imeIs = device.getIMEIs();
-        JsonArray imeisJ = new JsonArray();
-        for (String i : imeIs) {
-            imeisJ.add(i);
-        }
-
-        String mac = "";
-        try {
-            mac = device.getMacAddress();
-        } catch (Exception ignored) {
-        }
-
-        deviceInfo = new MapBuilder<String, Object>()
-                .put("CPU_ABI", Build.CPU_ABI)
-                .put("CPU_ABI2", Build.CPU_ABI2)
-                .put("manufacturer", Build.MANUFACTURER)
-                .put("host", Build.HOST)
-                .put("build_display", Device.buildDisplay)
-                .put("product", Device.product)
-                .put("device", Device.device)
-                .put("board", Device.board)
-                .put("brand", Device.brand)
-                .put("model", Device.model)
-                .put("bootloader", Device.bootloader)
-                .put("hardware", Device.hardware)
-                .put("incremental", Device.incremental)
-                .put("release", Device.release)
-                .put("build_id", Device.buildId)
-                .put("width", Device.width)
-                .put("height", Device.height)
-                .put("base_OS", Device.baseOS)
-                .put("security_patch", Device.securityPatch)
-                .put("fingerprint", Device.fingerprint)
-                .put("sdk_int", Device.sdkInt)
-                .put("codename", Device.codename)
-                .put("serial", device.getSerial())
-                .put("IMEIs", imeisJ)
-                .put("IMEI", device.getIMEI())
-                .put("mac", mac)
-                .put("android_id", device.getAndroidId())
-                .put("device_name", Build.BRAND + " " + Build.MODEL)
-                .put("device_id", deviceId)
-                .put("client_version", CLIENT_VERSION)
-                .put("app_version", BuildConfig.VERSION_NAME)
-                .put("app_version_code", BuildConfig.VERSION_CODE)
-                .build();
-
-        AutoJs.getInstance().getScriptEngineService().registerGlobalScriptExecutionListener(new ScriptExecutionListener() {
-            @Override
-            public void onStart(ScriptExecution execution) {
-                ExecutionConfig config = execution.getConfig();
-                if (config.getRunningId() != null) {
-                    sendCommand(CMD_SCRIPT_CHANGED, map2json(new MapBuilder<String, Object>()
-                            .put("id", config.getRunningId())
-                            .put("state", SCRIPT_STATE_START)
-                            .put("start_time", System.currentTimeMillis())
-                            .build()
-                    ));
-                }
-            }
-
-            @Override
-            public void onSuccess(ScriptExecution execution, Object result) {
-                ExecutionConfig config = execution.getConfig();
-                if (config.getRunningId() != null) {
-                    sendCommand(CMD_SCRIPT_CHANGED, map2json(new MapBuilder<String, Object>()
-                            .put("id", config.getRunningId())
-                            .put("state", SCRIPT_STATE_END)
-                            .put("end_time", System.currentTimeMillis())
-                            .build()
-                    ));
-                }
-            }
-
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onException(ScriptExecution execution, Throwable e) {
-                ExecutionConfig config = execution.getConfig();
-                if (config.getRunningId() != null) {
-                    ArrayList<String> traces = new ArrayList<>();
-                    traces.add(e.getMessage());
-                    for (StackTraceElement ste : e.getStackTrace()) {
-                        traces.add(ste.toString());
-                    }
-                    sendCommand(CMD_SCRIPT_CHANGED, map2json(new MapBuilder<String, Object>()
-                            .put("id", config.getRunningId())
-                            .put("state", SCRIPT_STATE_ERROR)
-                            .put("end_time", System.currentTimeMillis())
-                            .put("stack_trace", arr2json(traces))
-                            .build()
-                    ));
-                }
-            }
-        });
+        deviceInfo = Utils.getDeviceInfo();
+        AutoJs.getInstance().getScriptEngineService().registerGlobalScriptExecutionListener(new TaskChangeListener(this));
     }
 
     @AnyThread
@@ -265,7 +152,7 @@ public class DevPluginService {
                 .scheme("http")
                 .port(port)
                 .host(ip)
-                .addQueryParameter("device_id", deviceId)
+                .addQueryParameter("device_id", Utils.getIMEI())
                 .toString().substring(4);
         url = (ssl ? "wss" : "ws") + url;
         return Observable.just(new JsonWebSocket(client, new Request.Builder().url(url).build()))
@@ -317,12 +204,11 @@ public class DevPluginService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @WorkerThread
     private void sayHelloToServer(JsonWebSocket socket) {
-        sendData(TYPE_HELLO, map2json(deviceInfo));
+        sendData(TYPE_HELLO, (JsonObject) val2json(deviceInfo));
         mHandler.postDelayed(() -> {
             if (mSocket != socket && !socket.isClosed()) {
                 Log.i(LOG_TAG, "onHandshakeTimeout");
@@ -343,14 +229,18 @@ public class DevPluginService {
     public void log(String log) {
         if (!isConnected())
             return;
-        sendData("log", map2json(new MapBuilder<String, String>().put("log", log).build()));
+        sendData(TYPE_LOG, (JsonObject) val2json(new MapBuilder<String, String>().put("log", log).build()));
     }
 
     @AnyThread
     public void sendData(String type, JsonObject data) {
         if (!isConnected())
             return;
-        write(mSocket, type, data);
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", type);
+        json.add("data", data);
+        mSocket.write(json);
     }
 
     @AnyThread
@@ -362,57 +252,5 @@ public class DevPluginService {
         }
         ((JsonObject) data).addProperty("command", command);
         sendData(TYPE_CMD, (JsonObject) data);
-    }
-
-    private static JsonArray arr2json(List<?> arr) {
-        JsonArray jarr = new JsonArray();
-        for (Object value : arr) {
-            if (value instanceof String) {
-                jarr.add((String) value);
-            } else if (value instanceof Character) {
-                jarr.add((Character) value);
-            } else if (value instanceof Number) {
-                jarr.add((Number) value);
-            } else if (value instanceof Boolean) {
-                jarr.add((Boolean) value);
-            } else if (value instanceof JsonElement) {
-                jarr.add((JsonElement) value);
-            } else {
-                jarr.add(JsonNull.INSTANCE);
-//                throw new IllegalArgumentException("cannot put value " + value + " into json");
-            }
-        }
-        return jarr;
-    }
-
-    @AnyThread
-    private static JsonObject map2json(Map<String, ?> map) {
-        JsonObject data = new JsonObject();
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            Object value = entry.getValue();
-            if (value instanceof String) {
-                data.addProperty(entry.getKey(), (String) value);
-            } else if (value instanceof Character) {
-                data.addProperty(entry.getKey(), (Character) value);
-            } else if (value instanceof Number) {
-                data.addProperty(entry.getKey(), (Number) value);
-            } else if (value instanceof Boolean) {
-                data.addProperty(entry.getKey(), (Boolean) value);
-            } else if (value instanceof JsonElement) {
-                data.add(entry.getKey(), (JsonElement) value);
-            } else {
-                data.add(entry.getKey(), JsonNull.INSTANCE);
-//                throw new IllegalArgumentException("cannot put value " + value + " into json");
-            }
-        }
-        return data;
-    }
-
-    @AnyThread
-    private static boolean write(JsonWebSocket socket, String type, JsonObject data) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", type);
-        json.add("data", data);
-        return socket.write(json);
     }
 }
