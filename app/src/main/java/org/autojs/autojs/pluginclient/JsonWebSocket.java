@@ -19,7 +19,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
-import okio.ByteString;
 
 public class JsonWebSocket extends WebSocketListener {
     private static final String LOG_TAG = "JsonWebSocket";

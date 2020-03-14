@@ -5,17 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 import com.stardust.app.DialogUtils;
 import com.stardust.app.GlobalAppContext;
 import com.stardust.pio.PFiles;
@@ -30,16 +31,15 @@ import org.autojs.autojs.model.explorer.ExplorerDirPage;
 import org.autojs.autojs.model.explorer.ExplorerFileItem;
 import org.autojs.autojs.model.explorer.ExplorerPage;
 import org.autojs.autojs.model.explorer.Explorers;
-import org.autojs.autojs.storage.file.TmpScriptFiles;
 import org.autojs.autojs.model.sample.SampleFile;
 import org.autojs.autojs.model.script.ScriptFile;
 import org.autojs.autojs.model.script.Scripts;
 import org.autojs.autojs.network.download.DownloadManager;
+import org.autojs.autojs.storage.file.TmpScriptFiles;
+import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
 import org.autojs.autojs.ui.filechooser.FileChooserDialogBuilder;
 import org.autojs.autojs.ui.shortcut.ShortcutCreateActivity;
 import org.autojs.autojs.ui.timing.TimedTaskSettingActivity_;
-import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
-
 import org.reactivestreams.Publisher;
 
 import java.io.File;

@@ -1,13 +1,11 @@
 package com.stardust.automator.filter
 
-import com.stardust.automator.test.TestUiObject
 import com.stardust.automator.UiObject
 import com.stardust.automator.search.DFS
-
+import com.stardust.automator.test.TestUiObject
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.Random
-
-import org.junit.Assert.*
+import java.util.*
 
 /**
  * Created by Stardust on 2017/5/5.

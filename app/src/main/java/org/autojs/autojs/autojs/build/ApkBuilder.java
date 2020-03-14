@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
-import java.util.regex.Pattern;
 
 import pxb.android.StringItem;
 import pxb.android.axml.AxmlWriter;

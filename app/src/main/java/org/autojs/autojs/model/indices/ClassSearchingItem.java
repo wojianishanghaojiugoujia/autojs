@@ -1,7 +1,8 @@
 package org.autojs.autojs.model.indices;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 public abstract class ClassSearchingItem implements Comparable<ClassSearchingItem> {
 

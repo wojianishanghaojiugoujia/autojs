@@ -7,7 +7,6 @@ import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import com.stardust.app.GlobalAppContext;
 import com.stardust.util.IntentUtil;
 
@@ -20,7 +19,6 @@ import org.autojs.autojs.external.fileprovider.AppFileProvider;
 import org.autojs.autojs.model.explorer.ExplorerDirPage;
 import org.autojs.autojs.model.explorer.Explorers;
 import org.autojs.autojs.model.script.Scripts;
-import org.autojs.autojs.tool.SimpleObserver;
 import org.autojs.autojs.ui.common.ScriptOperations;
 import org.autojs.autojs.ui.explorer.ExplorerView;
 import org.autojs.autojs.ui.main.FloatingActionMenu;
@@ -31,8 +29,6 @@ import org.autojs.autojs.ui.project.ProjectConfigActivity_;
 import org.autojs.autojs.ui.viewmodel.ExplorerItemList;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by Stardust on 2017/3/13.

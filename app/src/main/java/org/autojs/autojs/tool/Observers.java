@@ -2,8 +2,6 @@ package org.autojs.autojs.tool;
 
 import com.stardust.app.GlobalAppContext;
 
-import org.autojs.autojs.model.explorer.ExplorerFileItem;
-
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;

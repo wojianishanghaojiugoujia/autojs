@@ -3,15 +3,13 @@ package org.autojs.autojs.ui.widget;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.autojs.autojs.R;
 

@@ -2,18 +2,19 @@ package com.stardust.autojs.core.console;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import androidx.annotation.Nullable;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
+import com.stardust.autojs.R;
 import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.ResizableExpandableFloaty;
 import com.stardust.enhancedfloaty.ResizableExpandableFloatyWindow;
 import com.stardust.util.ScreenMetrics;
 import com.stardust.util.ViewUtil;
-import com.stardust.autojs.R;
 
 /**
  * Created by Stardust on 2017/4/20.

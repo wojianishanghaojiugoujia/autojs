@@ -1,11 +1,9 @@
 package com.stardust.pio;
 
-import android.app.NativeActivity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.stardust.util.Func1;
 
@@ -14,14 +12,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Locale;
 
 /**

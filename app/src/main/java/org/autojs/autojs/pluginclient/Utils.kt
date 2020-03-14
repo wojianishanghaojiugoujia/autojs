@@ -1,19 +1,18 @@
 package org.autojs.autojs.pluginclient
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.AnyThread
 import com.google.gson.*
 import com.stardust.app.GlobalAppContext
 import com.stardust.autojs.runtime.api.Device
 import com.stardust.util.MapBuilder
 import org.autojs.autojs.BuildConfig
-import kotlin.collections.ArrayList
 
 object Utils {
     private val gson: Gson = Gson()
     private val device: Device = Device(GlobalAppContext.get())
 
+    @JvmStatic
     val IMEIs: ArrayList<String>
         get() = device.imeIs
 
@@ -21,6 +20,7 @@ object Utils {
     val IMEI: String?
         get() = device.imei
 
+    @JvmStatic
     val MAC: String
         get() {
             var mac = ""
@@ -64,7 +64,7 @@ object Utils {
                     .put("mac", MAC)
                     .put("android_id", device.androidId)
                     .put("device_name", Build.BRAND + " " + Build.MODEL)
-                    .put("device_id", imeis[0])
+                    .put("device_id", device.imei)
                     .put("client_version", DevPluginService.CLIENT_VERSION)
                     .put("app_version", BuildConfig.VERSION_NAME)
                     .put("app_version_code", BuildConfig.VERSION_CODE)

@@ -3,7 +3,6 @@ package org.autojs.autojs.ui.main.task;
 import android.content.Context;
 
 import com.bignerdranch.expandablerecyclerview.model.Parent;
-import com.stardust.autojs.engine.ScriptEngine;
 import com.stardust.autojs.execution.ScriptExecution;
 
 import org.autojs.autojs.R;
@@ -15,7 +14,6 @@ import org.autojs.autojs.timing.TimedTaskManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Stardust on 2017/11/28.

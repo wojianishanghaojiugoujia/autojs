@@ -3,11 +3,13 @@ package org.autojs.autojs.external.tasker;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
+
+import com.twofortyfouram.locale.sdk.client.receiver.AbstractPluginSettingReceiver;
 
 import org.autojs.autojs.external.ScriptIntents;
 import org.autojs.autojs.external.open.RunIntentActivity;
-import com.twofortyfouram.locale.sdk.client.receiver.AbstractPluginSettingReceiver;
 
 /**
  * Created by Stardust on 2017/3/27.

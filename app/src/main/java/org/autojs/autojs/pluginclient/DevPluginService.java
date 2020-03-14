@@ -3,13 +3,12 @@ package org.autojs.autojs.pluginclient;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import android.util.Pair;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
-
-import android.util.Log;
-import android.util.Pair;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -121,6 +120,10 @@ public class DevPluginService {
 
     public Observable<State> connectionState() {
         return mConnectionState;
+    }
+
+    public String getImei() {
+        return Utils.getIMEI();
     }
 
     @AnyThread

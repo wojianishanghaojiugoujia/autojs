@@ -1,23 +1,17 @@
 package org.autojs.autojs.ui.main.task;
 
-import android.content.Intent;
-
 import com.stardust.app.GlobalAppContext;
 import com.stardust.autojs.engine.ScriptEngine;
 import com.stardust.autojs.execution.ScriptExecution;
 import com.stardust.autojs.script.AutoFileSource;
 import com.stardust.autojs.script.JavaScriptSource;
 import com.stardust.pio.PFiles;
-import com.stardust.util.MapBuilder;
 
 import org.autojs.autojs.R;
 import org.autojs.autojs.timing.IntentTask;
 import org.autojs.autojs.timing.TimedTask;
 import org.autojs.autojs.timing.TimedTaskManager;
-
 import org.joda.time.format.DateTimeFormat;
-
-import java.util.Map;
 
 import static org.autojs.autojs.ui.timing.TimedTaskSettingActivity.ACTION_DESC_MAP;
 

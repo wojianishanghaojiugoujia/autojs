@@ -1,11 +1,9 @@
 package com.stardust.automator.filter
 
 import android.graphics.Rect
-
 import com.stardust.automator.UiObject
 import com.stardust.view.accessibility.AccessibilityNodeInfoHelper
-
-import java.util.Locale
+import java.util.*
 
 /**
  * Created by Stardust on 2017/3/9.

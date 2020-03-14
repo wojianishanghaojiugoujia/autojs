@@ -1,10 +1,7 @@
 package org.autojs.autojs.pluginclient;
 
-import android.annotation.SuppressLint;
-import android.renderscript.ScriptC;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -13,23 +10,15 @@ import com.google.gson.JsonObject;
 import com.stardust.app.GlobalAppContext;
 import com.stardust.autojs.execution.ExecutionConfig;
 import com.stardust.autojs.execution.ScriptExecution;
-import com.stardust.autojs.project.ProjectLauncher;
-import com.stardust.autojs.project.ScriptConfig;
 import com.stardust.autojs.script.StringScriptSource;
-import com.stardust.io.Zip;
 import com.stardust.pio.PFiles;
-import com.stardust.util.MD5;
 
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.model.script.Scripts;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 

@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.media.Image;
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+
 import com.stardust.autojs.core.opencv.Mat;
 import com.stardust.autojs.core.opencv.OpenCVHelper;
 import com.stardust.pio.UncheckedIOException;
@@ -15,8 +17,6 @@ import org.opencv.imgcodecs.Imgcodecs;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
-
-import androidx.annotation.RequiresApi;
 
 /**
  * Created by Stardust on 2017/11/25.

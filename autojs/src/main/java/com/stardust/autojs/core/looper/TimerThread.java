@@ -2,6 +2,7 @@ package com.stardust.autojs.core.looper;
 
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.CallSuper;
 
 import com.stardust.autojs.engine.RhinoJavaScriptEngine;

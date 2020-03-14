@@ -8,8 +8,6 @@ import android.widget.EditText;
 import org.autojs.autojs.model.indices.Module;
 import org.autojs.autojs.model.indices.Modules;
 import org.autojs.autojs.model.indices.Property;
-import org.autojs.autojs.ui.widget.SimpleTextWatcher;
-import org.mozilla.javascript.ast.Loop;
 
 import java.util.ArrayList;
 import java.util.Collections;

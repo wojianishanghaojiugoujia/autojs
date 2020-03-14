@@ -2,10 +2,9 @@ package org.autojs.autojs.ui.update;
 
 import android.app.Activity;
 
-import androidx.annotation.NonNull;
-
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+
 import org.autojs.autojs.BuildConfig;
 import org.autojs.autojs.R;
 import org.autojs.autojs.network.VersionService;

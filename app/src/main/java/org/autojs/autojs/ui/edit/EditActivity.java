@@ -7,14 +7,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.stardust.app.OnActivityResultDelegate;
 import com.stardust.autojs.core.permission.OnRequestPermissionsResultCallback;
@@ -23,15 +22,14 @@ import com.stardust.autojs.core.permission.RequestPermissionCallbacks;
 import com.stardust.autojs.execution.ScriptExecution;
 import com.stardust.pio.PFiles;
 
-import org.autojs.autojs.R;
-import org.autojs.autojs.storage.file.TmpScriptFiles;
-import org.autojs.autojs.tool.Observers;
-import org.autojs.autojs.ui.BaseActivity;
-import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
-
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+import org.autojs.autojs.R;
+import org.autojs.autojs.storage.file.TmpScriptFiles;
+import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
+import org.autojs.autojs.tool.Observers;
+import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.main.MainActivity_;
 
 import java.io.File;

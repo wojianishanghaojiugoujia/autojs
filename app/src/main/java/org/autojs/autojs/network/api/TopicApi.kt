@@ -2,7 +2,6 @@ package org.autojs.autojs.network.api
 
 import kotlinx.coroutines.Deferred
 import org.autojs.autojs.network.entity.topic.Category
-import org.autojs.autojs.network.entity.topic.Post
 import org.autojs.autojs.network.entity.topic.Topic
 import retrofit2.http.GET
 import retrofit2.http.Path

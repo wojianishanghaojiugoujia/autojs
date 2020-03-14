@@ -2,12 +2,10 @@ package com.stardust.view.accessibility
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.RequiresApi
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
-
+import androidx.annotation.RequiresApi
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 /**

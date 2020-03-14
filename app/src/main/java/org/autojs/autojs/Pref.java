@@ -7,10 +7,8 @@ import android.preference.PreferenceManager;
 
 import com.stardust.app.GlobalAppContext;
 import com.stardust.autojs.runtime.accessibility.AccessibilityConfig;
-import com.stardust.theme.ThemeColorManager;
 
 import org.autojs.autojs.autojs.key.GlobalKeyObserver;
-import org.autojs.autojs.theme.ThemeColorManagerCompat;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;

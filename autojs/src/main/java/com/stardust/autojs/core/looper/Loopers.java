@@ -5,6 +5,8 @@ import android.os.Looper;
 import android.os.MessageQueue;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.stardust.autojs.rhino.AutoJsContext;
 import com.stardust.autojs.runtime.ScriptRuntime;
 import com.stardust.autojs.runtime.api.Threads;
@@ -16,8 +18,6 @@ import org.mozilla.javascript.Context;
 
 import java.util.HashSet;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import androidx.annotation.Nullable;
 
 /**
  * Created by Stardust on 2017/7/29.

@@ -9,7 +9,6 @@ import com.stardust.concurrent.VolatileBox;
 import com.stardust.pio.PFiles;
 
 import org.autojs.autojs.R;
-import org.autojs.autojs.model.script.ScriptFile;
 import org.autojs.autojs.network.NodeBB;
 import org.autojs.autojs.network.api.DownloadApi;
 import org.autojs.autojs.tool.SimpleObserver;
@@ -18,7 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 import java.util.concurrent.ConcurrentHashMap;
 

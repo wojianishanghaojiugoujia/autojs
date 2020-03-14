@@ -4,10 +4,8 @@ package org.autojs.autojs.ui.main.drawer;
  * Created by Stardust on 2017/8/25.
  */
 public class DrawerMenuItem {
-
-
     public interface Action {
-        void onClick(DrawerMenuItemViewHolder holder);
+        void onClick(DrawerMenuItemViewHolder holder, boolean clickSwitch);
     }
 
     private int mIcon;
@@ -82,9 +80,9 @@ public class DrawerMenuItem {
         return mPrefKey;
     }
 
-    public void performAction(DrawerMenuItemViewHolder holder) {
+    public void performAction(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         if (mAction != null)
-            mAction.onClick(holder);
+            mAction.onClick(holder, clickSwitch);
     }
 
     @Override

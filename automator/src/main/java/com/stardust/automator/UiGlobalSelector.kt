@@ -6,7 +6,6 @@ import com.stardust.automator.filter.*
 import com.stardust.automator.search.BFS
 import com.stardust.automator.search.DFS
 import com.stardust.automator.search.SearchAlgorithm
-import java.lang.IllegalArgumentException
 
 /**
  * Created by Stardust on 2017/3/8.

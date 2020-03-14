@@ -1,8 +1,7 @@
 package com.stardust.automator.simple_action
 
 import com.stardust.automator.UiObject
-
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by Stardust on 2017/2/12.

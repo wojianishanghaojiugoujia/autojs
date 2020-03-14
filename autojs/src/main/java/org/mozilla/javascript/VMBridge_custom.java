@@ -5,13 +5,14 @@ import android.util.Log;
 
 import com.stardust.autojs.engine.RhinoJavaScriptEngine;
 
-//import org.mozilla.javascript.jdk15.VMBridge_jdk15;
 import org.mozilla.javascript.jdk18.VMBridge_jdk18;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+//import org.mozilla.javascript.jdk15.VMBridge_jdk15;
 
 public class VMBridge_custom extends VMBridge_jdk18 {
 

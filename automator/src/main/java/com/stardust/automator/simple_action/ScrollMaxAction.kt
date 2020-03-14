@@ -2,10 +2,8 @@ package com.stardust.automator.simple_action
 
 import android.graphics.Rect
 import android.util.Log
-
 import com.stardust.automator.UiObject
-
-import java.util.HashSet
+import java.util.*
 
 /**
  * Created by Stardust on 2017/1/27.

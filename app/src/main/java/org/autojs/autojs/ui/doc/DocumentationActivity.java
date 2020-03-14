@@ -2,14 +2,13 @@ package org.autojs.autojs.ui.doc;
 
 import android.webkit.WebView;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.widget.EWebView;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
 
 /**
  * Created by Stardust on 2017/10/24.

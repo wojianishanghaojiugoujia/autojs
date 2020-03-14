@@ -1,15 +1,13 @@
 package org.autojs.autojs.ui.main;
 
+import android.view.View;
+
 import androidx.annotation.CallSuper;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
-import android.view.View;
-
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.stardust.util.BackPressedHandler;
 
 /**

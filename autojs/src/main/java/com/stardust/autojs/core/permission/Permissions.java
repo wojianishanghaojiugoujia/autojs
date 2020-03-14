@@ -3,6 +3,7 @@ package com.stardust.autojs.core.permission;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;

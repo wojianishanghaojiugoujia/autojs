@@ -2,10 +2,11 @@ package com.stardust.autojs.core.inputevent;
 
 import android.content.Context;
 import android.os.SystemClock;
-import androidx.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.ViewConfiguration;
+
+import androidx.annotation.Nullable;
 
 import com.stardust.autojs.core.util.Shell;
 import com.stardust.autojs.engine.RootAutomatorEngine;
@@ -16,7 +17,20 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.stardust.autojs.core.inputevent.InputEventCodes.*;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.ABS_MT_POSITION_X;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.ABS_MT_POSITION_Y;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.ABS_MT_SLOT;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.ABS_MT_TOUCH_MAJOR;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.ABS_MT_TRACKING_ID;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.ABS_MT_WIDTH_MAJOR;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.BTN_TOUCH;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.DOWN;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.EV_ABS;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.EV_KEY;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.EV_SYN;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.SYN_MT_REPORT;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.SYN_REPORT;
+import static com.stardust.autojs.core.inputevent.InputEventCodes.UP;
 
 /**
  * Created by Stardust on 2017/7/16.

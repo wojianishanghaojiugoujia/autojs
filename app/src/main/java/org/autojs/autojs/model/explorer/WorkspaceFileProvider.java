@@ -16,7 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 

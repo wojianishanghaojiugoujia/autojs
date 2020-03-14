@@ -2,7 +2,6 @@ package com.stardust.automator.test
 
 import android.graphics.Rect
 import android.os.Bundle
-import android.view.accessibility.AccessibilityNodeInfo
 import com.stardust.automator.UiObject
 import java.util.*
 

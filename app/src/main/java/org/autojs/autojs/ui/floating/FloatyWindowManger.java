@@ -10,17 +10,10 @@ import com.stardust.app.GlobalAppContext;
 import com.stardust.autojs.util.FloatingPermission;
 import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.FloatyWindow;
-import com.stardust.enhancedfloaty.util.FloatingWindowPermissionUtil;
 
-import org.autojs.autojs.App;
 import org.autojs.autojs.R;
-import org.autojs.autojs.ui.floating.CircularMenu;
-
-import com.stardust.util.IntentUtil;
 
 import java.lang.ref.WeakReference;
-
-import ezy.assist.compat.SettingsCompat;
 
 import static com.stardust.autojs.util.FloatingPermission.manageDrawOverlays;
 

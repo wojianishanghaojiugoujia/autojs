@@ -1,8 +1,6 @@
 package org.autojs.autojs.ui.main.drawer;
 
-import android.content.pm.PackageManager;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,10 +46,11 @@ public class DrawerMenuItemViewHolder extends BindableViewHolder<DrawerMenuItem>
     public DrawerMenuItemViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
-        mSwitchCompat.setOnCheckedChangeListener((buttonView, isChecked) -> onClick());
+        mSwitchCompat.setOnCheckedChangeListener((buttonView, isChecked) -> onClick(true));
         itemView.setOnClickListener(v -> {
             if (mSwitchCompat.getVisibility() == VISIBLE) {
-                mSwitchCompat.toggle();
+                mSwitchCompat.setChecked(!mSwitchCompat.isChecked(), false);
+                onClick();
             } else {
                 onClick();
             }
@@ -93,7 +92,12 @@ public class DrawerMenuItemViewHolder extends BindableViewHolder<DrawerMenuItem>
         }
     }
 
+
     private void onClick() {
+        onClick(false);
+    }
+
+    private void onClick(boolean clickSwitch) {
         mDrawerMenuItem.setChecked(mSwitchCompat.isChecked());
         if (mAntiShake && (System.currentTimeMillis() - mLastClickMillis < CLICK_TIMEOUT)) {
             Toast.makeText(itemView.getContext(), R.string.text_click_too_frequently, Toast.LENGTH_SHORT).show();
@@ -102,7 +106,7 @@ public class DrawerMenuItemViewHolder extends BindableViewHolder<DrawerMenuItem>
         }
         mLastClickMillis = System.currentTimeMillis();
         if (mDrawerMenuItem != null) {
-            mDrawerMenuItem.performAction(this);
+            mDrawerMenuItem.performAction(this, clickSwitch);
         }
     }
 

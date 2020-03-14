@@ -3,21 +3,17 @@ package org.autojs.autojs.network;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import org.autojs.autojs.App;
+import com.stardust.util.NetworkUtils;
+
 import org.autojs.autojs.BuildConfig;
-import org.autojs.autojs.R;
 import org.autojs.autojs.network.api.UpdateCheckApi;
 import org.autojs.autojs.network.entity.VersionInfo;
 import org.autojs.autojs.tool.SimpleObserver;
-import org.autojs.autojs.ui.update.UpdateInfoDialogBuilder;
-import com.stardust.util.NetworkUtils;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;

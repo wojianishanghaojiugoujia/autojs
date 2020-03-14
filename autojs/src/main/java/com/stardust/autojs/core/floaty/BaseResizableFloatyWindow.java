@@ -1,13 +1,12 @@
 package com.stardust.autojs.core.floaty;
 
 import android.content.Context;
-
-import androidx.annotation.Nullable;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+
+import androidx.annotation.Nullable;
 
 import com.stardust.autojs.R;
 import com.stardust.autojs.core.ui.inflater.inflaters.Exceptions;
@@ -17,8 +16,6 @@ import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.ResizableFloaty;
 import com.stardust.enhancedfloaty.ResizableFloatyWindow;
 import com.stardust.enhancedfloaty.WindowBridge;
-import com.stardust.enhancedfloaty.gesture.DragGesture;
-import com.stardust.enhancedfloaty.gesture.ResizeGesture;
 
 /**
  * Created by Stardust on 2017/12/5.

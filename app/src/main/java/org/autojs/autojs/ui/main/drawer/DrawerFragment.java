@@ -6,50 +6,45 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.InputType;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.InputType;
-import android.widget.Toast;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.stardust.app.AppOpsKt;
 import com.stardust.app.GlobalAppContext;
 import com.stardust.notification.NotificationListenerService;
+import com.stardust.util.IntentUtil;
+import com.stardust.view.accessibility.AccessibilityService;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ViewById;
 import org.autojs.autojs.Pref;
 import org.autojs.autojs.R;
 import org.autojs.autojs.autojs.AutoJs;
 import org.autojs.autojs.external.foreground.ForegroundService;
 import org.autojs.autojs.network.UserService;
+import org.autojs.autojs.network.VersionService;
+import org.autojs.autojs.network.entity.VersionInfo;
 import org.autojs.autojs.pluginclient.DevPluginResponseHandler;
+import org.autojs.autojs.pluginclient.DevPluginService;
+import org.autojs.autojs.tool.AccessibilityServiceTool;
 import org.autojs.autojs.tool.Observers;
+import org.autojs.autojs.tool.SimpleObserver;
+import org.autojs.autojs.tool.WifiTool;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.common.NotAskAgainDialog;
 import org.autojs.autojs.ui.floating.CircularMenu;
 import org.autojs.autojs.ui.floating.FloatyWindowManger;
-import org.autojs.autojs.network.VersionService;
-import org.autojs.autojs.network.entity.VersionInfo;
-import org.autojs.autojs.tool.SimpleObserver;
 import org.autojs.autojs.ui.main.MainActivity;
 import org.autojs.autojs.ui.main.community.CommunityFragment;
 import org.autojs.autojs.ui.settings.SettingsActivity;
 import org.autojs.autojs.ui.update.UpdateInfoDialogBuilder;
-
-import com.stardust.view.accessibility.AccessibilityService;
-
-import org.autojs.autojs.pluginclient.DevPluginService;
-import org.autojs.autojs.tool.AccessibilityServiceTool;
-import org.autojs.autojs.tool.WifiTool;
-
-import com.stardust.util.IntentUtil;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -100,7 +95,6 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
 
     // 连接超时的定时器
     private Disposable connectTimeoutDisposable;
-    private int timeout = 5;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,11 +110,9 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         forceCloseDisposable = DevPluginService.getInstance().getSimpleCmd()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(state -> {
-                    switch (state.first) {
-                        case DevPluginResponseHandler.SIMPLE_CMD_FORCE_CLOSE:
-                            设置断线重连(false);
-                            DevPluginService.getInstance().disconnectIfNeeded();
-                            break;
+                    if (state.first == DevPluginResponseHandler.SIMPLE_CMD_FORCE_CLOSE) {
+                        设置断线重连(false);
+                        DevPluginService.getInstance().disconnectIfNeeded();
                     }
                 });
 
@@ -199,7 +191,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         }
     }
 
-    void 切换无障碍服务(DrawerMenuItemViewHolder holder) {
+    private void 切换无障碍服务(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         boolean isAccessibilityServiceEnabled = 无障碍服务是否开启();
         boolean checked = holder.getSwitchCompat().isChecked();
         if (checked && !isAccessibilityServiceEnabled) {
@@ -211,7 +203,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         }
     }
 
-    void 切换通知读取权限(DrawerMenuItemViewHolder holder) {
+    private void 切换通知读取权限(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
             return;
         }
@@ -222,7 +214,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         }
     }
 
-    private void 切换前台服务(DrawerMenuItemViewHolder holder) {
+    private void 切换前台服务(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         boolean checked = holder.getSwitchCompat().isChecked();
         if (checked) {
             ForegroundService.start(GlobalAppContext.get());
@@ -231,7 +223,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         }
     }
 
-    private void 切换查看使用统计权限(DrawerMenuItemViewHolder holder) {
+    private void 切换查看使用统计权限(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
@@ -252,7 +244,7 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         }
     }
 
-    private void 切换悬浮窗(DrawerMenuItemViewHolder holder) {
+    private void 切换悬浮窗(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         boolean isFloatingWindowShowing = FloatyWindowManger.isCircularMenuShowing();
         boolean checked = holder.getSwitchCompat().isChecked();
         if (getActivity() != null && !getActivity().isFinishing()) {
@@ -267,18 +259,28 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     }
 
     // 切换 连接电脑 switch
-    private void 切换连接电脑(DrawerMenuItemViewHolder holder) {
+    private void 切换连接电脑(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         boolean checked = holder.getSwitchCompat().isChecked();
-        boolean connected = DevPluginService.getInstance().isConnected();
+        DevPluginService dps = DevPluginService.getInstance();
+        boolean connected = dps.isConnected();
         if (checked && !connected) {
-            输入服务器地址();
+            if (dps.getImei() == null) {
+                setChecked(连接电脑菜单项, false);
+                吐司消息L("没有开启获取设备IMEI权限");
+                return;
+            }
+            输入服务器地址(clickSwitch);
         } else if (!checked && connected) {
             DevPluginService.getInstance().disconnectIfNeeded();
         }
     }
 
-    private void 切换断线重连(DrawerMenuItemViewHolder holder) {
+    private void 切换断线重连(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         if (断线重连菜单项.isChecked()) {
+            if (clickSwitch) {
+                设置断线重连(true);
+                return;
+            }
             new MaterialDialog.Builder(Objects.requireNonNull(getActivity()))
                     .title("最大尝试次数（输入0为不限制次数）")
                     .inputType(InputType.TYPE_CLASS_NUMBER)
@@ -316,15 +318,15 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
         }
     }
 
-    private void 打开主题色(DrawerMenuItemViewHolder holder) {
+    private void 打开主题色(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         SettingsActivity.selectThemeColor(getActivity());
     }
 
-    private void 切换夜间模式(DrawerMenuItemViewHolder holder) {
+    private void 切换夜间模式(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         ((BaseActivity) Objects.requireNonNull(getActivity())).setNightModeEnabled(holder.getSwitchCompat().isChecked());
     }
 
-    private void 点击检查更新(DrawerMenuItemViewHolder holder) {
+    private void 点击检查更新(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         setProgress(检测更新菜单项, true);
         VersionService.getInstance().checkForUpdates()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -353,26 +355,27 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     }
 
     // 默认连接服务器，使用填过的值
-    private Disposable connectToServer() {
+    private void connectToServer() {
         String host = Pref.getServerAddressOrDefault(WifiTool.getRouterIp(Objects.requireNonNull(getActivity())));
         int port = Pref.getServerPortOrDefault(9317);
-        return connectToServer(host, port);
+        connectToServer(host, port);
     }
 
     // 连接服务器
-    private Disposable connectToServer(String ip, int port) {
+    private void connectToServer(String ip, int port) {
+        DevPluginService dps = DevPluginService.getInstance();
         取消断线重连线程();
         if (connectTimeoutDisposable != null && !connectTimeoutDisposable.isDisposed()) {
             connectTimeoutDisposable.dispose();
         }
+        int timeout = 15;
         connectTimeoutDisposable = Observable.timer(timeout, TimeUnit.SECONDS, AndroidSchedulers.mainThread()).subscribe(aLong -> {
             if (连接电脑菜单项.isProgress()) {
                 吐司消息L("超时未连接，强制关闭");
                 DevPluginService.getInstance().disconnectIfNeeded();
             }
         });
-        return DevPluginService
-                .getInstance()
+        dps
                 .connectToServer(ip, port)
                 .subscribe(Observers.emptyConsumer(), e -> {
                     setChecked(连接电脑菜单项, false);
@@ -381,9 +384,14 @@ public class DrawerFragment extends androidx.fragment.app.Fragment {
     }
 
     // 连接电脑输入地址和端口
-    private void 输入服务器地址() {
+    private void 输入服务器地址(boolean clickSwitch) {
         String host = Pref.getServerAddressOrDefault(WifiTool.getRouterIp(Objects.requireNonNull(getActivity())));
         int port = Pref.getServerPortOrDefault(9317);
+        if (clickSwitch) {
+            吐司消息L("连接服务器：" + host + ":" + port);
+            connectToServer(host, port);
+            return;
+        }
 
         new MaterialDialog.Builder(getActivity())
                 .title(R.string.text_server_address)

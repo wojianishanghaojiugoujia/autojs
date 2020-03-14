@@ -2,6 +2,7 @@ package org.autojs.autojs.ui.splash;
 
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.annotation.Nullable;
 
 import org.autojs.autojs.R;

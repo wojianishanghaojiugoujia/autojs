@@ -2,19 +2,20 @@ package org.autojs.autojs.ui.main.community;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.webkit.WebView;
 
-import org.autojs.autojs.R;
-import org.autojs.autojs.network.NodeBB;
-import org.autojs.autojs.ui.main.QueryEvent;
-import org.autojs.autojs.ui.main.ViewPagerFragment;
+import androidx.annotation.Nullable;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.stardust.util.BackPressedHandler;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
+import org.autojs.autojs.R;
+import org.autojs.autojs.network.NodeBB;
+import org.autojs.autojs.ui.main.QueryEvent;
+import org.autojs.autojs.ui.main.ViewPagerFragment;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 

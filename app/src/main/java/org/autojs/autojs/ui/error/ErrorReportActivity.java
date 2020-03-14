@@ -5,19 +5,16 @@ import android.content.ClipboardManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
+import androidx.appcompat.widget.Toolbar;
 
 import org.autojs.autojs.BuildConfig;
-import org.autojs.autojs.ui.BaseActivity;
-import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
 import org.autojs.autojs.R;
+import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
+import org.autojs.autojs.ui.BaseActivity;
 
 import java.util.Locale;
 import java.util.Timer;

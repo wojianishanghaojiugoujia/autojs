@@ -25,8 +25,6 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.Layout;
 import android.util.AttributeSet;
@@ -37,11 +35,13 @@ import android.view.MotionEvent;
 import android.widget.TextView;
 import android.widget.TextViewHelper;
 
-import org.autojs.autojs.ui.edit.theme.Theme;
-import org.autojs.autojs.ui.edit.theme.TokenMapping;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.AppCompatEditText;
 
 import com.stardust.util.TextUtils;
 
+import org.autojs.autojs.ui.edit.theme.Theme;
+import org.autojs.autojs.ui.edit.theme.TokenMapping;
 import org.mozilla.javascript.Token;
 
 import java.util.LinkedHashMap;

@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import org.autojs.autojs.App;
 import org.autojs.autojs.external.ScriptIntents;
 
 /**

@@ -3,13 +3,6 @@ package org.autojs.autojs.ui.explorer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +14,14 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.stardust.pio.PFiles;
 
 import org.autojs.autojs.R;
@@ -36,15 +37,14 @@ import org.autojs.autojs.model.explorer.ExplorerSamplePage;
 import org.autojs.autojs.model.explorer.Explorers;
 import org.autojs.autojs.model.script.ScriptFile;
 import org.autojs.autojs.model.script.Scripts;
+import org.autojs.autojs.theme.widget.ThemeColorSwipeRefreshLayout;
 import org.autojs.autojs.tool.Observers;
-import org.autojs.autojs.ui.project.BuildActivity;
-import org.autojs.autojs.ui.project.BuildActivity_;
 import org.autojs.autojs.ui.common.ScriptLoopDialog;
 import org.autojs.autojs.ui.common.ScriptOperations;
+import org.autojs.autojs.ui.project.BuildActivity;
+import org.autojs.autojs.ui.project.BuildActivity_;
 import org.autojs.autojs.ui.viewmodel.ExplorerItemList;
 import org.autojs.autojs.ui.widget.BindableViewHolder;
-import org.autojs.autojs.theme.widget.ThemeColorSwipeRefreshLayout;
-
 import org.autojs.autojs.workground.WrapContentGridLayoutManger;
 import org.greenrobot.eventbus.Subscribe;
 

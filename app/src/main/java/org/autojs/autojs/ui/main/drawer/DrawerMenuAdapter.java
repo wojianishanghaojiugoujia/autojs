@@ -1,8 +1,9 @@
 package org.autojs.autojs.ui.main.drawer;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.autojs.autojs.R;
 import org.autojs.autojs.ui.widget.BindableViewHolder;

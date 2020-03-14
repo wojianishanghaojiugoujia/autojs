@@ -5,7 +5,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.stardust.app.GlobalAppContext;
-import org.autojs.autojs.App;
+
 import org.autojs.autojs.R;
 import org.autojs.autojs.network.VersionService;
 import org.autojs.autojs.network.entity.VersionInfo;

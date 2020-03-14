@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-
 import com.stardust.auojs.inrt.BuildConfig
 import com.stardust.auojs.inrt.LogActivity
 import com.stardust.auojs.inrt.Pref
@@ -17,14 +16,11 @@ import com.stardust.autojs.execution.ScriptExecution
 import com.stardust.autojs.project.ProjectConfig
 import com.stardust.autojs.script.JavaScriptFileSource
 import com.stardust.autojs.script.JavaScriptSource
-import com.stardust.autojs.script.ScriptSource
 import com.stardust.pio.PFiles
 import com.stardust.pio.UncheckedIOException
 import com.stardust.util.MD5
-
 import java.io.File
 import java.io.IOException
-import java.lang.reflect.Field
 
 /**
  * Created by Stardust on 2018/1/24.

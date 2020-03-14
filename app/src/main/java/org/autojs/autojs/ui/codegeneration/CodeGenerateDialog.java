@@ -1,10 +1,6 @@
 package org.autojs.autojs.ui.codegeneration;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,18 +8,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder;
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 import com.bignerdranch.expandablerecyclerview.model.Parent;
 import com.stardust.app.DialogUtils;
 import com.stardust.autojs.codegeneration.CodeGenerator;
-import org.autojs.autojs.R;
-import org.autojs.autojs.ui.widget.CheckBoxCompat;
-import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
 import com.stardust.theme.util.ListBuilder;
 import com.stardust.util.ClipboardUtil;
 import com.stardust.view.accessibility.NodeInfo;
+
+import org.autojs.autojs.R;
+import org.autojs.autojs.theme.dialog.ThemeColorMaterialDialogBuilder;
+import org.autojs.autojs.ui.widget.CheckBoxCompat;
 
 import java.util.ArrayList;
 import java.util.List;

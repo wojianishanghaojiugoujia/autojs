@@ -5,17 +5,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-
-import androidx.annotation.Nullable;
-
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.stardust.pio.PFiles;
 
+import org.autojs.autojs.R;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.edit.EditActivity;
-import org.autojs.autojs.R;
 
 import java.io.File;
 

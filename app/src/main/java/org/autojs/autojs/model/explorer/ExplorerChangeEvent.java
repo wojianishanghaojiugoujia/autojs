@@ -1,7 +1,5 @@
 package org.autojs.autojs.model.explorer;
 
-import com.stardust.util.ObjectHelper;
-
 public class ExplorerChangeEvent {
 
 

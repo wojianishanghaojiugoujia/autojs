@@ -1,10 +1,11 @@
 package org.autojs.autojs.ui.floating.gesture;
 
-import androidx.core.view.GestureDetectorCompat;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.core.view.GestureDetectorCompat;
 
 import com.stardust.enhancedfloaty.WindowBridge;
 

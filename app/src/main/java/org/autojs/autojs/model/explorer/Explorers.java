@@ -2,8 +2,6 @@ package org.autojs.autojs.model.explorer;
 
 import com.stardust.app.GlobalAppContext;
 
-import org.greenrobot.eventbus.EventBus;
-
 public class Explorers {
 
 

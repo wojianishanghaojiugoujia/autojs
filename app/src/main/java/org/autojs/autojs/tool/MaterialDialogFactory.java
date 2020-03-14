@@ -3,6 +3,7 @@ package org.autojs.autojs.tool;
 import android.content.Context;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+
 import org.autojs.autojs.R;
 
 /**

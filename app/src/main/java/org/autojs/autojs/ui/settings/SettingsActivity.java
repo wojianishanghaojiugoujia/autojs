@@ -5,9 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
-import androidx.core.util.Pair;
-import androidx.appcompat.widget.Toolbar;
 import android.view.View;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.util.Pair;
 
 import com.stardust.theme.app.ColorSelectActivity;
 import com.stardust.theme.preference.ThemeColorPreferenceFragment;

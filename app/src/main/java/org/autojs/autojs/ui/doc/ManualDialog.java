@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+
 import org.autojs.autojs.R;
 import org.autojs.autojs.ui.widget.EWebView;
 

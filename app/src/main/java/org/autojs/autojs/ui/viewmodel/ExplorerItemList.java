@@ -2,7 +2,6 @@ package org.autojs.autojs.ui.viewmodel;
 
 import android.content.SharedPreferences;
 
-import org.autojs.autojs.model.explorer.ExplorerDirPage;
 import org.autojs.autojs.model.explorer.ExplorerItem;
 import org.autojs.autojs.model.explorer.ExplorerPage;
 import org.autojs.autojs.model.explorer.ExplorerSorter;

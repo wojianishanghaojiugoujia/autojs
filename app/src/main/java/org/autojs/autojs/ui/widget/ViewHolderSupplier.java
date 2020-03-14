@@ -1,9 +1,10 @@
 package org.autojs.autojs.ui.widget;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.reflect.Constructor;
 

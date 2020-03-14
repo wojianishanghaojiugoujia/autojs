@@ -2,17 +2,15 @@ package org.autojs.autojs.accessibility;
 
 import android.util.SparseArray;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
+
+import com.stardust.util.SparseArrayEntries;
 
 import org.autojs.autojs.R;
-import com.stardust.util.SparseArrayEntries;
 
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_LONG_CLICKED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED;
-import static android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD;
-import static android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_FORWARD;
 
 /**
  * Created by Stardust on 2017/3/16.

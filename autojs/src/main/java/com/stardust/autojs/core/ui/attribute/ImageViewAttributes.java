@@ -2,10 +2,10 @@ package com.stardust.autojs.core.ui.attribute;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-
-import androidx.core.widget.ImageViewCompat;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.core.widget.ImageViewCompat;
 
 import com.stardust.autojs.core.ui.inflater.ResourceParser;
 import com.stardust.util.BiMap;

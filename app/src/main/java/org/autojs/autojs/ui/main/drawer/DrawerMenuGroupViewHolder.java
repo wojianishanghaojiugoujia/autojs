@@ -1,6 +1,5 @@
 package org.autojs.autojs.ui.main.drawer;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 

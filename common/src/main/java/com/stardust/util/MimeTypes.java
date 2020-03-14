@@ -1,8 +1,9 @@
 package com.stardust.util;
 
+import android.webkit.MimeTypeMap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.webkit.MimeTypeMap;
 
 import static com.stardust.pio.PFiles.getExtension;
 

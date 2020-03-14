@@ -6,8 +6,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 
-import java.net.InetAddress;
-
 import static android.content.Context.WIFI_SERVICE;
 
 /**

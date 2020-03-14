@@ -14,10 +14,11 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 import android.view.OrientationEventListener;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.stardust.autojs.runtime.exception.ScriptException;
 import com.stardust.autojs.runtime.exception.ScriptInterruptedException;

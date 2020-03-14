@@ -1,7 +1,6 @@
 package com.stardust.util;
 
 import android.content.Context;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewParent;
 

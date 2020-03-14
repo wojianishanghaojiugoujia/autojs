@@ -4,9 +4,7 @@ import android.annotation.SuppressLint;
 
 import org.autojs.autojs.R;
 import org.autojs.autojs.network.UserService;
-import org.autojs.autojs.network.entity.notification.Notification;
 import org.autojs.autojs.ui.main.community.CommunityFragment;
-
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
@@ -14,9 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -146,37 +142,37 @@ public class CommunityDrawerMenu {
         }
     }
 
-    private void showNotifications(DrawerMenuItemViewHolder holder) {
+    private void showNotifications(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         EventBus.getDefault().post(new CommunityFragment.LoadUrl("/notifications"));
         setNotificationCount(mMenuAdapter, 0);
     }
 
-    private void showCategories(DrawerMenuItemViewHolder holder) {
+    private void showCategories(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         EventBus.getDefault().post(new CommunityFragment.LoadUrl("/categories"));
     }
 
-    private void showUnread(DrawerMenuItemViewHolder holder) {
+    private void showUnread(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         EventBus.getDefault().post(new CommunityFragment.LoadUrl("/unread"));
 
     }
 
-    private void showRecent(DrawerMenuItemViewHolder holder) {
+    private void showRecent(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         EventBus.getDefault().post(new CommunityFragment.LoadUrl("/recent"));
 
     }
 
-    private void showPopular(DrawerMenuItemViewHolder holder) {
+    private void showPopular(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         EventBus.getDefault().post(new CommunityFragment.LoadUrl("/popular"));
 
     }
 
-    private void showTags(DrawerMenuItemViewHolder holder) {
+    private void showTags(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         EventBus.getDefault().post(new CommunityFragment.LoadUrl("/tags"));
 
     }
 
 
-    private void logout(DrawerMenuItemViewHolder holder) {
+    private void logout(DrawerMenuItemViewHolder holder, boolean clickSwitch) {
         UserService.getInstance().logout()
                 .subscribeOn(Schedulers.io())
                 .subscribe();

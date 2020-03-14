@@ -15,12 +15,10 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-
-import android.telephony.TelephonyManager;
 
 import com.stardust.autojs.R;
 import com.stardust.autojs.runtime.exception.ScriptException;
@@ -100,40 +98,43 @@ public class Device {
     }
 
     public ArrayList<String> getIMEIs() {
-        checkReadPhoneStatePermission();
         ArrayList<String> list = new ArrayList<>();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return list;
         }
         TelephonyManager tm = getSystemService(Context.TELEPHONY_SERVICE);
         try {
+            checkReadPhoneStatePermission();
             for (int slot = 0; slot < tm.getPhoneCount(); slot++) {
                 list.add(tm.getImei(slot));
             }
-        } catch (SecurityException e) {
+        } catch (SecurityException ignored) {
         }
         return list;
     }
 
     public String getSerial() {
-        checkReadPhoneStatePermission();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return Build.SERIAL;
-        }
-        return Build.getSerial();
-    }
-
-    @SuppressLint("HardwareIds")
-    @Nullable
-    public String getIMEI() {
-        checkReadPhoneStatePermission();
         try {
-            return ((TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+            checkReadPhoneStatePermission();
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                return Build.SERIAL;
+            }
+            return Build.getSerial();
         } catch (SecurityException e) {
             return null;
         }
     }
 
+    @SuppressLint("HardwareIds")
+    @Nullable
+    public String getIMEI() {
+        try {
+            checkReadPhoneStatePermission();
+            return ((TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+        } catch (SecurityException e) {
+            return null;
+        }
+    }
 
     @SuppressLint("HardwareIds")
     public String getAndroidId() {

@@ -2,11 +2,9 @@ package org.autojs.autojs.pluginclient
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.stardust.autojs.execution.ScriptExecution
 import com.stardust.autojs.execution.ScriptExecutionListener
-import com.stardust.util.MapBuilder
 import org.autojs.autojs.pluginclient.Utils.val2json
 import java.util.*
 

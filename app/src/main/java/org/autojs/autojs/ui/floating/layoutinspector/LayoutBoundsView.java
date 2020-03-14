@@ -7,14 +7,15 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Build;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.stardust.view.accessibility.NodeInfo;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
 import com.stardust.util.ViewUtil;
+import com.stardust.view.accessibility.NodeInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;

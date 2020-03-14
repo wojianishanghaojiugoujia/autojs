@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.stardust.app.OnActivityResultDelegate;
-import org.autojs.autojs.R;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import org.autojs.autojs.R;
 
 /**
  * Created by Stardust on 2017/3/5.

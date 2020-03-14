@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-import androidx.annotation.Nullable;
+
 import androidx.annotation.RequiresApi;
 
 import java.util.Collections;

@@ -5,12 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.text.TextUtils
-
 import com.stardust.app.GlobalAppContext
-import com.stardust.auojs.inrt.App
 import com.stardust.autojs.core.util.ProcessShell
-
-import java.util.Locale
+import java.util.*
 
 /**
  * Created by Stardust on 2017/7/1.

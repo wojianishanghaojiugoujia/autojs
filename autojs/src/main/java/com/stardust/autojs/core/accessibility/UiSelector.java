@@ -2,11 +2,10 @@ package com.stardust.autojs.core.accessibility;
 
 import android.os.Looper;
 import android.os.SystemClock;
-
-import androidx.annotation.NonNull;
-
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
+
+import androidx.annotation.NonNull;
 
 import com.stardust.autojs.BuildConfig;
 import com.stardust.autojs.annotation.ScriptInterface;

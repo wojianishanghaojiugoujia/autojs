@@ -12,7 +12,10 @@ import com.stardust.autojs.runtime.ScriptRuntime
 import com.stardust.autojs.script.JavaScriptSource
 import com.stardust.automator.UiObjectCollection
 import com.stardust.pio.UncheckedIOException
-import org.mozilla.javascript.*
+import org.mozilla.javascript.Context
+import org.mozilla.javascript.Script
+import org.mozilla.javascript.Scriptable
+import org.mozilla.javascript.ScriptableObject
 import org.mozilla.javascript.commonjs.module.RequireBuilder
 import org.mozilla.javascript.commonjs.module.provider.SoftCachingModuleScriptProvider
 import java.io.File

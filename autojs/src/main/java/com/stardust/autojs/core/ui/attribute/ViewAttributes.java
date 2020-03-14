@@ -6,14 +6,15 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.CallSuper;
-import androidx.core.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import androidx.annotation.CallSuper;
+import androidx.core.view.ViewCompat;
 
 import com.stardust.autojs.core.internal.Functions;
 import com.stardust.autojs.core.ui.inflater.ResourceParser;

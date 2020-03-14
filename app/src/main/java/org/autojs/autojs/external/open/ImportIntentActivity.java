@@ -3,14 +3,16 @@ package org.autojs.autojs.external.open;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.stardust.pio.PFiles;
+
+import org.autojs.autojs.R;
 import org.autojs.autojs.ui.BaseActivity;
 import org.autojs.autojs.ui.common.ScriptOperations;
-import org.autojs.autojs.R;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
